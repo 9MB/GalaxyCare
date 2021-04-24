@@ -1,0 +1,12 @@
+{
+  "name": "GalaxyCare",
+  "displayName": "GalaxyCare",
+  "expo": {
+    "name": "GalaxyCare",
+    "slug": "GalaxyCare",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
