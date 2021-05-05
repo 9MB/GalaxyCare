@@ -7,9 +7,10 @@ import {
   Image,
   View,
   Button,
-  Alert
+  Alert,
 } from "react-native";
 import SwitchSelector from "react-native-switch-selector";
+import auth from '@react-native-firebase/auth';
 
 const registerImage = require("../assets/images/registerImage.png");
 const options = [
@@ -18,7 +19,7 @@ const options = [
   { label: "病房助理(PCA)", value: "PCA" },
 ];
 
-export default function RegisterScreen() {
+export default function RegisterScreen({navigation}) {
   const [fullname, onChangeFullName] = React.useState("");
   const [phone, onChangePhone] = React.useState("");
   const [email, onChangeEmail] = React.useState("");
@@ -26,25 +27,50 @@ export default function RegisterScreen() {
   const [confirmPassword, onChangeConfirmPassword] = React.useState("");
   const [rank, onChangeRank] = React.useState("");
 
-
   const onSubmit = () => {
-    if (fullname.replace(/\s/g, "").length < 2){
-      Alert.alert("英文全名不能為空白")
-    }
-    else if (phone.length != 8 ){
-      Alert.alert("電話號碼需為8位數字")
-    }else if (email.replace(/\s/g, "").length < 2){
-      Alert.alert("電郵地址不能為空白")
-    }
-    else if (password.replace(/\s/g, "").length<5 || password != confirmPassword){
+    if (fullname.replace(/\s/g, "").length < 2) {
+      Alert.alert("英文全名不能為空白");
+    } else if (phone.length != 8) {
+      Alert.alert("電話號碼需為8位數字");
+    } else if (email.replace(/\s/g, "").length < 2) {
+      Alert.alert("電郵地址不能為空白");
+    } else if (
+      password.replace(/\s/g, "").length < 5 ||
+      password != confirmPassword
+    ) {
       Alert.alert("密碼或確認密碼錯誤");
       onChangePassword("");
       onChangeConfirmPassword("");
-    }else if (rank == ""){
-      Alert.alert("請選擇申請職銜！")
-    }else{
-      return;
+    } else if (rank == "") {
+      Alert.alert("請選擇申請職銜！");
+    } else {
+      createUserOnAuth();
     }
+  };
+
+  const createUserOnAuth = async () => {
+    await auth()
+      .createUserWithEmailAndPassword(
+        email,
+        password
+      )
+      .then(() => {
+        auth().currentUser.sendEmailVerification();
+          Alert.alert("驗證電郵已經發出，請到電子郵箱確認")
+          navigation.navigate("Login");
+      })
+      .catch((error) => {
+        if (error.code === "auth/email-already-in-use") {
+          Alert.alert("此電郵地址已被註冊");
+        }
+
+        if (error.code === "auth/invalid-email") {
+          Alert.alert("此電郵地址無效");
+          onChangeEmail("");
+        }
+
+        console.error(error);
+      });
   };
 
   return (
@@ -56,7 +82,7 @@ export default function RegisterScreen() {
           onChangeText={onChangeFullName}
           value={fullname}
           placeholder="您的英文全名（需與身分證相符）"
-          autoCapitalize="words"
+          autoCapitalize="characters"
           autoCorrect={false}
         />
         <TextInput
@@ -95,17 +121,12 @@ export default function RegisterScreen() {
         <Text style={styles.instruction}>申請職銜</Text>
         <SwitchSelector
           options={options}
-          initial={-1}
           onPress={(value) => {
             onChangeRank(value);
           }}
         />
         <View style={styles.buttonContainer}>
-        <Button
-          onPress={onSubmit}
-          title="提交"
-          color="#841584"
-        />
+          <Button onPress={onSubmit} title="提交" color="#841584" />
         </View>
       </View>
       <View style={styles.imageContainer}>
@@ -145,11 +166,11 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     marginBottom: 20,
   },
-  buttonContainer:{
-    marginTop:"10%"
+  buttonContainer: {
+    marginTop: "10%",
   },
-  button:{
-    marginTop:50
+  button: {
+    marginTop: 50,
   },
   imageContainer: {
     height: "20%",
