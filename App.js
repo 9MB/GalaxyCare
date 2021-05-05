@@ -16,7 +16,7 @@ const isLoggedIn = false;
 
 
 export default function App() {
-  const [assets] = useAssets([require("./assets/images/LoginBackground_GalaxyCare.jpg")]);
+  const [assets] = useAssets([require("./assets/images/LoginBackground_GalaxyCare.jpg"),require("./assets/images/registerImage.png")]);
   const [fonts] = useFonts({ "SF-Pro-Rounded-Black": require("./assets/fonts/SF-Pro-Rounded-Black.otf"), "SF-Pro-Rounded-Ultralight": require("./assets/fonts/SF-Pro-Rounded-Ultralight.otf"), "SF-Pro-Text-Bold": require("./assets/fonts/SF-Pro-Text-Bold.otf"), "SF-Pro-Text-Regular": require("./assets/fonts/SF-Pro-Text-Regular.otf") })
   if (!assets && !fonts) {
     <AppLoading />
