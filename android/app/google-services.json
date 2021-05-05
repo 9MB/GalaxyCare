@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "178265817020",
+    "project_id": "galaxy-care",
+    "storage_bucket": "galaxy-care.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:178265817020:android:6ebb3f42564520513c75b9",
+        "android_client_info": {
+          "package_name": "com.galaxycare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "178265817020-unl6qe1l2hg7910utggboduqb9v1g2th.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxsUrU_EGBP4fL34Fyo_taOHtu9P-GDrs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "178265817020-unl6qe1l2hg7910utggboduqb9v1g2th.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
