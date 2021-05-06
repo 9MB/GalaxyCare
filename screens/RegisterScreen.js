@@ -10,7 +10,8 @@ import {
   Alert,
 } from "react-native";
 import SwitchSelector from "react-native-switch-selector";
-import auth from '@react-native-firebase/auth';
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 
 const registerImage = require("../assets/images/registerImage.png");
 const options = [
@@ -19,7 +20,7 @@ const options = [
   { label: "病房助理(PCA)", value: "PCA" },
 ];
 
-export default function RegisterScreen({navigation}) {
+export default function RegisterScreen({ navigation }) {
   const [fullname, onChangeFullName] = React.useState("");
   const [phone, onChangePhone] = React.useState("");
   const [email, onChangeEmail] = React.useState("");
@@ -50,14 +51,13 @@ export default function RegisterScreen({navigation}) {
 
   const createUserOnAuth = async () => {
     await auth()
-      .createUserWithEmailAndPassword(
-        email,
-        password
-      )
+      .createUserWithEmailAndPassword(email, password)
       .then(() => {
+        createUserOnFirestore();
         auth().currentUser.sendEmailVerification();
-          Alert.alert("驗證電郵已經發出，請到電子郵箱確認")
-          navigation.navigate("Login");
+        Alert.alert("驗證電郵已經發出，請到電子郵箱確認");
+        auth().signOut();
+        navigation.navigate("InfoReceived");
       })
       .catch((error) => {
         if (error.code === "auth/email-already-in-use") {
@@ -70,6 +70,24 @@ export default function RegisterScreen({navigation}) {
         }
 
         console.error(error);
+      });
+  };
+
+  const createUserOnFirestore = async () => {
+    const memberInfo = {
+      fullname: fullname,
+      rank: rank,
+      phone: phone,
+      email: email,
+      builtDate: new Date(),
+      activated: false,
+    };
+
+    await firestore()
+      .doc("members/" + fullname)
+      .set(memberInfo, { merge: true })
+      .catch((e) => {
+        console.log("Create memberInfo on firestore failed", e);
       });
   };
 

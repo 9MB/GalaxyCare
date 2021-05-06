@@ -1,11 +1,15 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, Button } from 'react-native';
+import auth from '@react-native-firebase/auth';
 
 export default function JobBalanceScreen() {
+  const signout = () =>{
+    auth().signOut();
+  }
   return (
-    <View>
-        <Text>LoginScreen</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Button onPress={()=>signout()} title="登出" color="#841584" />
+    </SafeAreaView>
   );
 }
 
