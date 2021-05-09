@@ -1,34 +1,41 @@
 {
   "project_info": {
-    "project_number": "178265817020",
-    "project_id": "galaxy-care",
-    "storage_bucket": "galaxy-care.appspot.com"
+    "project_number": "869597643003",
+    "project_id": "galaxy-care-32fb5",
+    "storage_bucket": "galaxy-care-32fb5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:178265817020:android:6ebb3f42564520513c75b9",
+        "mobilesdk_app_id": "1:869597643003:android:351a74777a19e78f10305e",
         "android_client_info": {
           "package_name": "com.galaxycare"
         }
       },
       "oauth_client": [
         {
-          "client_id": "178265817020-unl6qe1l2hg7910utggboduqb9v1g2th.apps.googleusercontent.com",
+          "client_id": "869597643003-89eju8oabss748k32cg6o55qo5k6v54i.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCxsUrU_EGBP4fL34Fyo_taOHtu9P-GDrs"
+          "current_key": "AIzaSyAfqR4WeE-qN8SbczSA9opEmqZLBDGLAFI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "178265817020-unl6qe1l2hg7910utggboduqb9v1g2th.apps.googleusercontent.com",
+              "client_id": "869597643003-89eju8oabss748k32cg6o55qo5k6v54i.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "869597643003-mt8ojfsemcbco746svie23d8ma12op1g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.name.GalaxyCare"
+              }
             }
           ]
         }

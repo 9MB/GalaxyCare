@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>178265817020-caemsualgjbd91mgpvf59va07qnbj03i.apps.googleusercontent.com</string>
+	<string>869597643003-mt8ojfsemcbco746svie23d8ma12op1g.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.178265817020-caemsualgjbd91mgpvf59va07qnbj03i</string>
+	<string>com.googleusercontent.apps.869597643003-mt8ojfsemcbco746svie23d8ma12op1g</string>
 	<key>API_KEY</key>
-	<string>AIzaSyCt-pDS9rcrspvqi8ix0mC5GRaJsrur_ko</string>
+	<string>AIzaSyCgBvRYCJzxKYD7Bs-ja-LEVOMdP5LqXl0</string>
 	<key>GCM_SENDER_ID</key>
-	<string>178265817020</string>
+	<string>869597643003</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>org.name.GalaxyCare</string>
 	<key>PROJECT_ID</key>
-	<string>galaxy-care</string>
+	<string>galaxy-care-32fb5</string>
 	<key>STORAGE_BUCKET</key>
-	<string>galaxy-care.appspot.com</string>
+	<string>galaxy-care-32fb5.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:178265817020:ios:1a99246ef71003ff3c75b9</string>
+	<string>1:869597643003:ios:8a238812e98f5d4b10305e</string>
 </dict>
 </plist>
