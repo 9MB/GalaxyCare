@@ -3,7 +3,11 @@ import { StyleSheet, Text, View, Dimensions, Image } from 'react-native';
 
 const checkMark = require("../assets/images/CheckMark.png");
 
-export default function InfoReceivedScreen() {
+export default function InfoReceivedScreen({navigation}) {
+  React.useEffect(()=>{
+    setTimeout(function(){navigation.navigate("登入")},3000)
+  },[]);
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>您的申請資料已被接納 : )</Text>

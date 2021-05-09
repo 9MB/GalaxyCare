@@ -83,12 +83,12 @@ export default function App() {
       ) : (
         <LoginStack.Navigator initialRouteName="Login">
           <LoginStack.Screen
-            name="Login"
+            name="登入"
             component={LoginScreen}
             options={{ headerShown: false }}
           />
           <LoginStack.Screen
-            name="Register"
+            name="登記"
             component={RegisterScreen}
             options={{
               headerStyle: { backgroundColor: "#ffcc00" },

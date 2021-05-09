@@ -85,7 +85,7 @@ export default function LoginScreen({ navigation }) {
             <Text
               style={styles.buttonText}
               onPress={() => {
-                navigation.navigate("Register");
+                navigation.navigate("登記");
               }}
             >
               預約登記

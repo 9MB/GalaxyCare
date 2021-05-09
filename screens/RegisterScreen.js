@@ -4,20 +4,31 @@ import {
   Text,
   TextInput,
   KeyboardAvoidingView,
+  ScrollView,
   Image,
   View,
   Button,
   Alert,
+  Dimensions,
 } from "react-native";
 import SwitchSelector from "react-native-switch-selector";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
+import { Picker } from "@react-native-picker/picker";
 
 const registerImage = require("../assets/images/registerImage.png");
-const options = [
+const jobOptions = [
+  { label: "護理職系", value: "nurse" },
+  { label: "助理職系", value: "assistant" },
+];
+const nurseOptions = [
   { label: "註冊護士(RN)", value: "RN" },
   { label: "登記護士(EN)", value: "EN" },
-  { label: "病房助理(PCA)", value: "PCA" },
+];
+const hcaOptions = [
+  { label: "病房助理/保健員(HCA/HW)", value: "PCA/HW" },
+  { label: "起居照顧員(PCW)", value: "PCW" },
+  { label: "常務員(WM)", value: "WM" },
 ];
 
 export default function RegisterScreen({ navigation }) {
@@ -26,7 +37,28 @@ export default function RegisterScreen({ navigation }) {
   const [email, onChangeEmail] = React.useState("");
   const [password, onChangePassword] = React.useState("");
   const [confirmPassword, onChangeConfirmPassword] = React.useState("");
+  const [jobType, onChangeJobType] = React.useState("");
   const [rank, onChangeRank] = React.useState("");
+  const [preferLocation, setPreferLocation] = React.useState("");
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ marginRight: 10 }}>
+          <Button onPress={() => onSubmit()} title="提交" />
+        </View>
+      ),
+    });
+  }, [
+    navigation,
+    fullname,
+    phone,
+    email,
+    password,
+    confirmPassword,
+    rank,
+    preferLocation,
+  ]);
 
   const onSubmit = () => {
     if (fullname.replace(/\s/g, "").length < 2) {
@@ -44,6 +76,8 @@ export default function RegisterScreen({ navigation }) {
       onChangeConfirmPassword("");
     } else if (rank == "") {
       Alert.alert("請選擇申請職銜！");
+    } else if (preferLocation == "") {
+      Alert.alert("請選擇預期工作地點！");
     } else {
       createUserOnAuth();
     }
@@ -52,8 +86,8 @@ export default function RegisterScreen({ navigation }) {
   const createUserOnAuth = async () => {
     await auth()
       .createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        createUserOnFirestore();
+      .then(async () => {
+        await createUserOnFirestore();
         auth().currentUser.sendEmailVerification();
         Alert.alert("驗證電郵已經發出，請到電子郵箱確認");
         auth().signOut();
@@ -77,6 +111,7 @@ export default function RegisterScreen({ navigation }) {
     const memberInfo = {
       fullname: fullname,
       rank: rank,
+      preferLocation: preferLocation,
       phone: phone,
       email: email,
       builtDate: new Date(),
@@ -84,80 +119,117 @@ export default function RegisterScreen({ navigation }) {
     };
 
     await firestore()
-      .doc("members/" + fullname)
-      .set(memberInfo, { merge: true })
+      .collection("members")
+      .add(memberInfo, { merge: true })
       .catch((e) => {
         console.log("Create memberInfo on firestore failed", e);
       });
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding">
-      <View style={styles.container}>
-        <Text style={styles.greet}>歡迎您加入Galaxy Care！</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeFullName}
-          value={fullname}
-          placeholder="您的英文全名（需與身分證相符）"
-          autoCapitalize="characters"
-          autoCorrect={false}
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangePhone}
-          value={phone}
-          placeholder="您的手提電話號碼"
-          keyboardType="number-pad"
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeEmail}
-          value={email}
-          placeholder="您的電郵地址（將用於登入帳戶）"
-          autoCorrect={false}
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangePassword}
-          value={password}
-          placeholder="密碼"
-          autoCapitalize="none"
-          autoCorrect={false}
-          secureTextEntry={true}
-        />
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeConfirmPassword}
-          value={confirmPassword}
-          placeholder="確認密碼"
-          autoCapitalize="none"
-          autoCorrect={false}
-          secureTextEntry={true}
-        />
-        <Text style={styles.instruction}>申請職銜</Text>
-        <SwitchSelector
-          options={options}
-          onPress={(value) => {
-            onChangeRank(value);
-          }}
-        />
-        <View style={styles.buttonContainer}>
-          <Button onPress={onSubmit} title="提交" color="#841584" />
+    <ScrollView>
+      <KeyboardAvoidingView behavior="padding">
+        <View style={styles.container}>
+          <Text style={styles.greet}>歡迎您加入Galaxy Care！</Text>
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangeFullName}
+            value={fullname}
+            placeholder="您的英文全名（需與身分證相符）"
+            autoCapitalize="characters"
+            autoCorrect={false}
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangePhone}
+            value={phone}
+            placeholder="您的手提電話號碼"
+            keyboardType="number-pad"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangeEmail}
+            value={email}
+            placeholder="您的電郵地址（將用於登入帳戶）"
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangePassword}
+            value={password}
+            placeholder="密碼"
+            autoCapitalize="none"
+            autoCorrect={false}
+            secureTextEntry={true}
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={onChangeConfirmPassword}
+            value={confirmPassword}
+            placeholder="確認密碼"
+            autoCapitalize="none"
+            autoCorrect={false}
+            secureTextEntry={true}
+          />
+          <Text style={styles.instruction}>申請職銜</Text>
+          <SwitchSelector
+            options={jobOptions}
+            value={jobType}
+            onPress={(value) => {
+              onChangeJobType(value);
+            }}
+          />
+          <View style={styles.seperator}></View>
+          {jobType == "" ? null : jobType == "nurse" ? (
+            <SwitchSelector
+              options={nurseOptions}
+              value={rank}
+              onPress={(value) => {
+                onChangeRank(value);
+              }}
+            />
+          ) : (
+            <SwitchSelector
+              options={hcaOptions}
+              value={rank}
+              onPress={(value) => {
+                onChangeRank(value);
+              }}
+            />
+          )}
+
+          <Text style={styles.instruction}>預期工作地點</Text>
+          <Picker
+            selectedValue={preferLocation}
+            style={styles.pickerWheel}
+            onValueChange={(itemValue, itemIndex) =>
+              setPreferLocation(itemValue)
+            }
+          >
+            <Picker.Item label="" value="" />
+            <Picker.Item label="九龍東" value="KEC" />
+            <Picker.Item label="九龍中" value="KCC" />
+            <Picker.Item label="九龍西" value="KWC" />
+            <Picker.Item label="新界西" value="NTWC" />
+            <Picker.Item label="新界東" value="NTEC" />
+            <Picker.Item label="港島西" value="HKWC" />
+            <Picker.Item label="港島東" value="HKEC" />
+          </Picker>
         </View>
-      </View>
-      <View style={styles.imageContainer}>
-        <Image
-          source={registerImage}
-          resizeMode="contain"
-          style={styles.image}
-        />
-      </View>
-    </KeyboardAvoidingView>
+        <View style={styles.imageContainer}>
+          <Image
+            source={registerImage}
+            resizeMode="contain"
+            style={styles.image}
+          />
+        </View>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 
+const { height } = Dimensions.get("window");
 const styles = StyleSheet.create({
   container: {
     height: "80%",
@@ -172,7 +244,7 @@ const styles = StyleSheet.create({
   },
   instruction: {
     fontFamily: "SF-Pro-Rounded-Ultralight",
-    margin: 15,
+    margin: 10,
   },
   input: {
     borderWidth: 1,
@@ -182,23 +254,24 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     minHeight: 40,
     marginLeft: 15,
-    marginBottom: 20,
+    marginBottom: 18,
   },
-  buttonContainer: {
-    marginTop: "10%",
+  seperator: {
+    height: 10,
   },
-  button: {
-    marginTop: 50,
+  pickerWheel: {
+    width: "95%",
   },
   imageContainer: {
     height: "20%",
     width: "100%",
     alignItems: "flex-end",
+    top: height * 0.8,
+    position: "absolute",
   },
   image: {
     position: "absolute",
     height: "100%",
     width: "100%",
-    bottom: 0,
   },
 });
