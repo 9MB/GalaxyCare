@@ -14,7 +14,7 @@ import {
   FontAwesome5,
 } from "@expo/vector-icons";
 import * as Calendar from "expo-calendar";
-import * as Permissions from "expo-permissions";
+
 
 const calendarImage = require("../assets/images/registerImage.png");
 
@@ -24,13 +24,16 @@ export default function JobCalendarScreen({ navigation }) {
   const [queryYear, setYear] = React.useState(new Date().getFullYear());
   const [queryDay, setQueryDay] = React.useState(new Date().getDate());
   const [calendarArray, buildCalendarArray] = React.useState([]);
+  const [eventsArray, setEventsArray] = React.useState([]);
 
   function nextMonth() {
     if (queryMonth == 11) {
       setMonth(0);
       setYear(queryYear + 1);
+      setQueryDay(1);
     } else {
       setMonth(queryMonth + 1);
+      setQueryDay(1);
     }
   }
 
@@ -38,8 +41,10 @@ export default function JobCalendarScreen({ navigation }) {
     if (queryMonth == 0) {
       setMonth(11);
       setYear(queryYear - 1);
+      setQueryDay(1);
     } else {
       setMonth(queryMonth - 1);
+      setQueryDay(1);
     }
   }
 
@@ -49,11 +54,18 @@ export default function JobCalendarScreen({ navigation }) {
       const { status } = await Calendar.requestCalendarPermissionsAsync();
       if (status === 'granted') {
         const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-        console.log('Here are all your calendars:');
-        console.log({ calendars });
+        const calendarsIDArray = calendars.map(calendar=>{calendar.id});
+        const startDate = new Date(queryYear, queryMonth, 1);
+        const endDate = new Date(queryYear, queryMonth+1, 1);
+        const eventsArray = await Calendar.getEventsAsync(
+          calendarsIDArray,
+          startDate,
+          endDate
+        );
+      setEventsArray(eventsArray)
       }
     })();
-  }, []);
+  }, [queryMonth]);
 
   React.useEffect(() => {
     function calendarDateArray() {
@@ -156,6 +168,8 @@ export default function JobCalendarScreen({ navigation }) {
           return (
             <View style={styles.weeksRow}>
               {weekArray.map((day) => {
+                const dayDateObject = new Date(queryYear, queryMonth, day);
+                const dayEventsArray = eventsArray.filter(event=>new Date(event.startDate).getDate() == dayDateObject.getDate());
                 return (
                   <TouchableOpacity
                     style={day == queryDay ? styles.queryDayBox : styles.dayBox}
@@ -182,6 +196,14 @@ export default function JobCalendarScreen({ navigation }) {
                         {day}
                       </Text>
                     )}
+                    {dayEventsArray.map((event)=>{
+                      return(
+                        <View style={styles.eventPotContainer}>
+                        <Text style={styles.calendarEventTitle}>{event.title}</Text>
+                        <View style={styles.sticker}></View>
+                        </View>
+                      )
+                    })}
                   </TouchableOpacity>
                 );
               })}
@@ -228,6 +250,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "SF-Pro-Rounded-Ultralight",
   },
+  calendarEventTitle:{
+    fontFamily:"SF-Pro-Rounded-Ultralight",
+    fontSize:12,
+    textAlign:"center"
+  },
   calendarContainer: {
     height: height * 0.75,
     width: "95%",
@@ -265,5 +292,14 @@ const styles = StyleSheet.create({
   },
   queryDayText: {
     fontFamily: "SF-Pro-Text-Bold",
+  },
+  eventPotContainer:{
+    height:"100%",
+    width:"100%"
+  },
+  sticker:{
+    width:"100%",
+    height:"20%",
+    backgroundColor:"#19FFE6"
   },
 });
