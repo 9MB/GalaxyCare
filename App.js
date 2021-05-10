@@ -14,11 +14,22 @@ import JobListScreen from "./screens/JobListScreen";
 import JobCalendarScreen from "./screens/JobCalendarScreen";
 import JobBalanceScreen from "./screens/JobBalanceScreen";
 import InfoReceivedScreen from "./screens/InfoReceivedScreen";
+import StickerCreatingScreen from "./screens/StickerCreatingScreen";
 
 import auth from '@react-native-firebase/auth';
 
 const LoginStack = createStackNavigator();
+const CalendarStack = createStackNavigator();
 const AppTab = createBottomTabNavigator();
+
+function Calendar(){
+  return(
+    <CalendarStack.Navigator initialRouteName="工作日歷">
+      <CalendarStack.Screen name="工作日歷" component={JobCalendarScreen} options={{headerShown:false}}/>
+      <CalendarStack.Screen name="常用事項" component={StickerCreatingScreen} options={{headerStyle: { backgroundColor: "#ffcc00" },headerTintColor: "white"}}/>
+    </CalendarStack.Navigator>
+  )
+}
 
 export default function App() {
   const [appIsReady, setAppIsReady] = React.useState(false);
@@ -76,7 +87,7 @@ export default function App() {
     <NavigationContainer>
       {user && auth().currentUser.emailVerified ? (
         <AppTab.Navigator initialRouteName="工作日歷">
-          <AppTab.Screen name="工作日歷" component={JobCalendarScreen} />
+          <AppTab.Screen name="工作日歷" component={Calendar} />
           <AppTab.Screen name="報更" component={JobListScreen} />
           <AppTab.Screen name="我的月結單" component={JobBalanceScreen} />
         </AppTab.Navigator>

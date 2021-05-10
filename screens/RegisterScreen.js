@@ -120,7 +120,7 @@ export default function RegisterScreen({ navigation }) {
 
     await firestore()
       .collection("members")
-      .add(memberInfo, { merge: true })
+      .add(memberInfo)
       .catch((e) => {
         console.log("Create memberInfo on firestore failed", e);
       });
