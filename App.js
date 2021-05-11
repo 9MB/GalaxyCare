@@ -86,7 +86,7 @@ export default function App() {
   return (
     <NavigationContainer>
       {user && auth().currentUser.emailVerified ? (
-        <AppTab.Navigator initialRouteName="工作日歷">
+        <AppTab.Navigator initialRouteName="報更">
           <AppTab.Screen name="工作日歷" component={Calendar} />
           <AppTab.Screen name="報更" component={JobListScreen} />
           <AppTab.Screen name="我的月結單" component={JobBalanceScreen} />

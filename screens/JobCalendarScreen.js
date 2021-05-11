@@ -31,7 +31,7 @@ export default function JobCalendarScreen({ navigation }) {
   const [queryDay, setQueryDay] = React.useState(new Date().getDate());
   const [calendarArray, buildCalendarArray] = React.useState([]);
   const [eventsArray, setEventsArray] = React.useState([]);
-  const [isQuickAdding, switchIsQuickAdding] = React.useState(true);
+  const [isQuickAdding, switchIsQuickAdding] = React.useState(false);
 
   function nextMonth() {
     if (queryMonth == 11) {
