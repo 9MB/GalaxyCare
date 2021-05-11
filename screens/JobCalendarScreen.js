@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  FlatList,
 } from "react-native";
 import {
   AntDesign,
@@ -14,9 +15,14 @@ import {
   FontAwesome5,
 } from "@expo/vector-icons";
 import * as Calendar from "expo-calendar";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import defaultStickerList from "../components/defaultStickerList";
 
 
 const calendarImage = require("../assets/images/registerImage.png");
+
+var stickerArray;
+var AppsCalendarID;
 
 export default function JobCalendarScreen({ navigation }) {
   const today = new Date().getDate();
@@ -25,6 +31,7 @@ export default function JobCalendarScreen({ navigation }) {
   const [queryDay, setQueryDay] = React.useState(new Date().getDate());
   const [calendarArray, buildCalendarArray] = React.useState([]);
   const [eventsArray, setEventsArray] = React.useState([]);
+  const [isQuickAdding, switchIsQuickAdding] = React.useState(true);
 
   function nextMonth() {
     if (queryMonth == 11) {
@@ -48,21 +55,88 @@ export default function JobCalendarScreen({ navigation }) {
     }
   }
 
+  renderItem = ({item}) =>{
+    return(
+      <TouchableOpacity style={styles.stickerPreview} onPress={()=>{createEvent(item)}}>
+        <Text adjustsFontSizeToFit={true} style={styles.stickerText}>{item.eventTitle}</Text>
+      </TouchableOpacity>
+    )
+  }
+
+  async function loadStickerArray(){
+    const jsonStickerArray = await AsyncStorage.getItem("StickerList");
+    stickerArray = jsonStickerArray?JSON.parse(jsonStickerArray):defaultStickerList;
+  }
+
+  async function loadAppsCalendarID(){
+    const jsonAppsCalendarID = await AsyncStorage.getItem("AppsCalendarID");
+    AppsCalendarID = jsonAppsCalendarID?JSON.parse(jsonAppsCalendarID):undefined;
+    if(AppsCalendarID == undefined){
+      AppsCalendarID = await createCalendar();
+      const jsonValue = JSON.stringify(AppsCalendarID);
+      await AsyncStorage.setItem("AppsCalendarID", jsonValue);
+    }
+  }
+  async function createEvent(sticker){
+    const CalendarID = AppsCalendarID? AppsCalendarID:await loadAppsCalendarID();
+    const startDate = new Date(queryYear, queryMonth, queryDay, sticker.eventStartingHour, sticker.eventStartingMinute);
+    const compareEndDate = new Date(queryYear, queryMonth, queryDay, sticker.eventEndingHour, sticker.eventEndingMinute);
+    const endDate = compareEndDate.getTime()>startDate.getTime()?compareEndDate:new Date(queryYear, queryMonth, parseInt(queryDay)+1, sticker.eventEndingHour, sticker.eventEndingMinute);
+    const details=sticker.eventTitle.startsWith("想報")?{
+      title: sticker.eventTitle,
+      startDate:startDate,
+      endDate: endDate,
+      availability:"free",
+      notes:"GalaxyCare Work Schedule"
+    }:{
+      title: sticker.eventTitle,
+      startDate:startDate,
+      endDate: endDate,
+      availability:"busy",
+      notes:"GalaxyCare Work Schedule"
+    };
+    await Calendar.createEventAsync(CalendarID, details);
+    this.forceUpdate();
+  }
+
+  async function getDefaultCalendarSource() {
+    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+    const defaultCalendars = calendars.filter(each => each.source.name === 'Default');
+    return defaultCalendars[0].source;
+  }
+  
+  async function createCalendar() {
+    const defaultCalendarSource =
+      Platform.OS === 'ios'
+        ? await getDefaultCalendarSource()
+        : { isLocalAccount: true, name: 'GalaxyCare Calendar' };
+    const newCalendarID = await Calendar.createCalendarAsync({
+      title: 'GalaxyCare Calendar',
+      color: 'blue',
+      entityType: Calendar.EntityTypes.EVENT,
+      sourceId: defaultCalendarSource.id,
+      source: defaultCalendarSource,
+      name: 'internalCalendarName',
+      ownerAccount: 'personal',
+      accessLevel: Calendar.CalendarAccessLevel.OWNER,
+    });
+    return newCalendarID;
+  }
 
   React.useEffect(() => {
     (async () => {
       const { status } = await Calendar.requestCalendarPermissionsAsync();
       if (status === 'granted') {
         const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-        const calendarsIDArray = calendars.map(calendar=>{calendar.id});
+        const calendarsIDArray = calendars.map(calendar => { calendar.id });
         const startDate = new Date(queryYear, queryMonth, 1);
-        const endDate = new Date(queryYear, queryMonth+1, 1);
+        const endDate = new Date(queryYear, queryMonth + 1, 1);
         const eventsArray = await Calendar.getEventsAsync(
           calendarsIDArray,
           startDate,
           endDate
         );
-      setEventsArray(eventsArray)
+        setEventsArray(eventsArray)
       }
     })();
   }, [queryMonth]);
@@ -98,48 +172,66 @@ export default function JobCalendarScreen({ navigation }) {
       buildCalendarArray(sixWeeksArrayFrame);
     }
     calendarDateArray();
+    loadStickerArray();
+    loadAppsCalendarID();
   }, [queryMonth]);
 
   return (
     <View style={styles.screenContainer}>
-      <View style={styles.monthRow}>
-        <TouchableOpacity
-          style={styles.caretContainer}
-          onPress={() => {
-            previousMonth();
-          }}
-        >
-          <AntDesign name="caretleft" size={15} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.monthText}>{queryMonth + 1}月</Text>
-        <TouchableOpacity
-          style={styles.caretContainer}
-          onPress={() => {
-            nextMonth();
-          }}
-        >
-          <AntDesign name="caretright" size={15} color="black" />
-        </TouchableOpacity>
-        <View style={styles.controlPanelContainer}>
+      {isQuickAdding ?
+        <View style={styles.stickerRow}>
+          <FlatList horizontal={true} data={stickerArray}
+            renderItem={this.renderItem}
+            style={{ padding: 10, height:"100%", width:"80%"}}
+            keyExtractor={(item, index) => index.toString()} />
+          <View>
+            <TouchableOpacity style={{height:"100%", justifyContent:"center"}} onPress={()=>{switchIsQuickAdding(false)}}>
+            <AntDesign name="back" size={24} color="black" />
+            <Text>月份</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        :
+
+        <View style={styles.monthRow}>
           <TouchableOpacity
-            style={styles.controlButton}
+            style={styles.caretContainer}
             onPress={() => {
-              navigation.navigate("常用事項");
+              previousMonth();
             }}
           >
-            <MaterialCommunityIcons
-              name="sticker-plus"
-              size={24}
-              color="white"
-            />
-            <Text style={styles.instructText}>常用事項</Text>
+            <AntDesign name="caretleft" size={15} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.controlButton}>
-            <FontAwesome5 name="calendar-plus" size={24} color="white" />
-            <Text style={styles.instructText}>新增日程</Text>
+          <Text style={styles.monthText}>{queryMonth + 1}月</Text>
+          <TouchableOpacity
+            style={styles.caretContainer}
+            onPress={() => {
+              nextMonth();
+            }}
+          >
+            <AntDesign name="caretright" size={15} color="black" />
           </TouchableOpacity>
+          <View style={styles.controlPanelContainer}>
+            <TouchableOpacity
+              style={styles.controlButton}
+              onPress={() => {
+                navigation.navigate("常用事項");
+              }}
+            >
+              <MaterialCommunityIcons
+                name="sticker-plus"
+                size={24}
+                color="white"
+              />
+              <Text style={styles.instructText}>新增貼圖</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.controlButton} onPress={()=>{switchIsQuickAdding(true)}}>
+              <FontAwesome5 name="calendar-plus" size={24} color="white" />
+              <Text style={styles.instructText}>新增日程</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      }
       <View style={styles.calendarContainer}>
         <View style={styles.weeksDayRow}>
           <View style={styles.dayBox}>
@@ -169,7 +261,7 @@ export default function JobCalendarScreen({ navigation }) {
             <View style={styles.weeksRow}>
               {weekArray.map((day) => {
                 const dayDateObject = new Date(queryYear, queryMonth, day);
-                const dayEventsArray = eventsArray.filter(event=>new Date(event.startDate).getDate() == dayDateObject.getDate());
+                const dayEventsArray = eventsArray.filter(event => new Date(event.startDate).getDate() == dayDateObject.getDate());
                 return (
                   <TouchableOpacity
                     style={day == queryDay ? styles.queryDayBox : styles.dayBox}
@@ -196,11 +288,13 @@ export default function JobCalendarScreen({ navigation }) {
                         {day}
                       </Text>
                     )}
-                    {dayEventsArray.map((event)=>{
-                      return(
+                    {dayEventsArray.map((event) => {
+                      return (
                         <View style={styles.eventPotContainer}>
-                        <Text style={styles.calendarEventTitle}>{event.title}</Text>
-                        <View style={styles.sticker}></View>
+                          <Text style={styles.calendarEventTitle}>{event.title}</Text>
+                          <View style={styles.sticker}>
+                            
+                          </View>
                         </View>
                       )
                     })}
@@ -229,6 +323,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     width: "100%",
   },
+  stickerRow: {
+    flexDirection: "row",
+    backgroundColor: "white",
+    width: "95%",
+    borderRadius: 20,
+    height: "10%",
+    marginBottom: 10,
+    alignItems:"center",
+    paddingRight:5
+  },
   controlPanelContainer: {
     flexDirection: "row",
   },
@@ -250,10 +354,10 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "SF-Pro-Rounded-Ultralight",
   },
-  calendarEventTitle:{
-    fontFamily:"SF-Pro-Rounded-Ultralight",
-    fontSize:12,
-    textAlign:"center"
+  calendarEventTitle: {
+    fontFamily: "SF-Pro-Rounded-Ultralight",
+    fontSize: 12,
+    textAlign: "center"
   },
   calendarContainer: {
     height: height * 0.75,
@@ -293,13 +397,24 @@ const styles = StyleSheet.create({
   queryDayText: {
     fontFamily: "SF-Pro-Text-Bold",
   },
-  eventPotContainer:{
-    height:"100%",
-    width:"100%"
+  eventPotContainer: {
+    flex:1
   },
-  sticker:{
-    width:"100%",
-    height:"20%",
-    backgroundColor:"#19FFE6"
+  sticker: {
+    height:"10%",
+    backgroundColor: "#19FFE6"
+  },
+  stickerPreview:{
+    backgroundColor: "#19FFE6",
+    height:"90%",
+    width:60,
+    borderRadius:20,
+    marginHorizontal:10,
+    justifyContent:"center",
+    alignItems:"center"
+  },
+  stickerText:{
+    fontFamily:"SF-Pro-Text-Bold",
+    color:"white"
   },
 });
