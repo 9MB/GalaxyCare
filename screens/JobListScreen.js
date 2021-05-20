@@ -23,7 +23,7 @@ const locationOptions = [
   "港島西(HKWC)",
 ];
 
-export default function JobListScreen() {
+export default function JobListScreen({navigation}) {
   const [filterLocation, setFilterLocation] = React.useState("");
   const [isExpandingPicker, switchIsExpandingPicker] = React.useState(false);
   const [fetchJobArray, setFetchJobArray] = React.useState([]);
@@ -85,7 +85,7 @@ export default function JobListScreen() {
 
   renderItem = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.jobRowContainer}>
+      <TouchableOpacity style={styles.jobRowContainer} onPress={()=>{navigation.navigate("應徵", {companyName: item.institutionName, jobInfo:item})}}>
         <View>
           <Text style={styles.jobCompanyTitle}>{item.institutionName}</Text>
           <Text style={styles.jobTime}>{new Date(item.startTime.seconds * 1000).getMonth() + 1}月{new Date(item.startTime.seconds * 1000).getDate()}日{new Date(item.startTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getHours() : new Date(item.startTime.seconds * 1000).getHours()}:{new Date(item.startTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getMinutes() : new Date(item.startTime.seconds * 1000).getMinutes()}-{new Date(item.endTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getHours() : new Date(item.endTime.seconds * 1000).getHours()}:{new Date(item.endTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getMinutes() : new Date(item.endTime.seconds * 1000).getMinutes()}</Text>
