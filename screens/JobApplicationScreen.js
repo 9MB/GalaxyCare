@@ -10,6 +10,9 @@ export default function JobApplicationScreen({ route, navigation }) {
     const { jobInfo } = route.params;
     var memberInfo;
 
+    async function findSpecificJobFromDB(){
+
+    }
 
     React.useEffect(() => {
         async function getEmployeeInfo() {
@@ -25,7 +28,9 @@ export default function JobApplicationScreen({ route, navigation }) {
     return (
         <View style={styles.screenContainer}>
             <View style={styles.imageContainer}>
-                <ImageBackground source={backgroundImage} style={styles.image} />
+                <ImageBackground source={backgroundImage} style={styles.image}>
+                    <Text style={styles.referenceText}>招聘編號:#{jobInfo.jobID}</Text>
+                </ImageBackground>
             </View>
             <SafeAreaView style={styles.container}>
                 <View style={styles.infoRow}>
@@ -99,6 +104,11 @@ const styles = StyleSheet.create({
         height: "60%",
         width: "20%",
         marginRight: 20
+    },
+    referenceText:{
+        color:"white",
+        marginTop:"auto",
+        marginLeft:5
     },
     infoLabelText: {
         fontFamily: "SF-Pro-Text-Regular",

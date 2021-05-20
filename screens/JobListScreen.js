@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import firestore from "@react-native-firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const locationOptions = [
   "全選",
@@ -23,27 +24,40 @@ const locationOptions = [
   "港島西(HKWC)",
 ];
 
-export default function JobListScreen({navigation}) {
+var memberInfo;
+
+export default function JobListScreen({ navigation }) {
   const [filterLocation, setFilterLocation] = React.useState("");
   const [isExpandingPicker, switchIsExpandingPicker] = React.useState(false);
   const [fetchJobArray, setFetchJobArray] = React.useState([]);
   const [filteredJobArray, setFilteredJobArray] = React.useState([]);
 
-  React.useEffect(() => {
+  React.useEffect(async() => {
     const now = new Date();
+    async function getEmployeeInfo() {
+      const jsonValue = await AsyncStorage.getItem("MemberInfoLocal");
+      if (jsonValue !== null) {
+        memberInfo = JSON.parse(jsonValue);
+        console.log("memberInfo", memberInfo)
+      }
+    }
+    await getEmployeeInfo();
     async function fetchJobsFromDB() {
       let tmpJobArray = [];
       firestore().collection("jobs")
         .where("recruiting", "==", true)
         .where("startTime", ">", now)
+        .where("rank", "==", memberInfo.rank)
         .get()
         .then(querySnapshot => {
           querySnapshot.forEach(doc => {
-            tmpJobArray.push(doc.data())
+            const jobObject = doc.data();
+            const jobID = { jobID: doc.id };
+            const mergeObject = Object.assign(jobObject, jobID);
+            tmpJobArray.push(mergeObject)
           })
           setFetchJobArray([...tmpJobArray]);
           setFilteredJobArray([...tmpJobArray]);
-          console.log("Fetched", fetchJobArray)
         })
         .catch(e => {
           console.log("Error at fetching JobList From DB", e);
@@ -85,7 +99,7 @@ export default function JobListScreen({navigation}) {
 
   renderItem = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.jobRowContainer} onPress={()=>{navigation.navigate("應徵", {companyName: item.institutionName, jobInfo:item})}}>
+      <TouchableOpacity style={styles.jobRowContainer} onPress={() => { navigation.navigate("應徵", { companyName: item.institutionName, jobInfo: item }) }}>
         <View>
           <Text style={styles.jobCompanyTitle}>{item.institutionName}</Text>
           <Text style={styles.jobTime}>{new Date(item.startTime.seconds * 1000).getMonth() + 1}月{new Date(item.startTime.seconds * 1000).getDate()}日{new Date(item.startTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getHours() : new Date(item.startTime.seconds * 1000).getHours()}:{new Date(item.startTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getMinutes() : new Date(item.startTime.seconds * 1000).getMinutes()}-{new Date(item.endTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getHours() : new Date(item.endTime.seconds * 1000).getHours()}:{new Date(item.endTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getMinutes() : new Date(item.endTime.seconds * 1000).getMinutes()}</Text>
