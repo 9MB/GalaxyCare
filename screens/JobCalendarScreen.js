@@ -96,7 +96,6 @@ export default function JobCalendarScreen({ navigation }) {
       notes:"GalaxyCare Work Schedule"
     };
     await Calendar.createEventAsync(CalendarID, details);
-    this.forceUpdate();
   }
 
   async function getDefaultCalendarSource() {
