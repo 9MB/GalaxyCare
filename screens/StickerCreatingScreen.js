@@ -195,7 +195,7 @@ export default function StickerCreatingScreen({navigation}) {
           }}
         ></TextInput>
       </View>
-      <Button title="提交" onPress={()=>isValidSticker()} />
+      <Button title="儲存" onPress={()=>isValidSticker()} />
     </KeyboardAvoidingView>
   );
 }
@@ -204,6 +204,7 @@ const { height, width } = Dimensions.get("window");
 const styles = StyleSheet.create({
   keyboardingAvoidingView: {
     height: height,
+    backgroundColor:"white"
   },
   stickerPreviewCircle: {
     height: height * 0.16,
@@ -212,12 +213,12 @@ const styles = StyleSheet.create({
     width: width * 0.35,
     borderRadius: 30,
     alignSelf: "center",
-    marginBottom: 30,
+    marginBottom: height*0.2,
   },
   stickerHead: {
     width: "100%",
     height: "20%",
-    backgroundColor: "white",
+    backgroundColor: "#eeffff",
     borderTopEndRadius: 20,
     borderTopStartRadius: 20,
     padding: 5,

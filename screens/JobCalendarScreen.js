@@ -8,15 +8,19 @@ import {
   Image,
   SafeAreaView,
   FlatList,
+  Alert
 } from "react-native";
 import {
   AntDesign,
   MaterialCommunityIcons,
   FontAwesome5,
+  SimpleLineIcons,
+  MaterialIcons
 } from "@expo/vector-icons";
 import * as Calendar from "expo-calendar";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import defaultStickerList from "../components/defaultStickerList";
+
 
 
 const calendarImage = require("../assets/images/registerImage.png");
@@ -79,16 +83,10 @@ export default function JobCalendarScreen({ navigation }) {
   }
   async function createEvent(sticker){
     const CalendarID = AppsCalendarID? AppsCalendarID:await loadAppsCalendarID();
-    const startDate = new Date(queryYear, queryMonth, queryDay, sticker.eventStartingHour, sticker.eventStartingMinute);
-    const compareEndDate = new Date(queryYear, queryMonth, queryDay, sticker.eventEndingHour, sticker.eventEndingMinute);
+    const startDate = new Date(queryYear, queryMonth, queryDay, parseInt(sticker.eventStartingHour), parseInt(sticker.eventStartingMinute));
+    const compareEndDate = new Date(queryYear, queryMonth, queryDay, parseInt(sticker.eventEndingHour), parseInt(sticker.eventEndingMinute));
     const endDate = compareEndDate.getTime()>startDate.getTime()?compareEndDate:new Date(queryYear, queryMonth, parseInt(queryDay)+1, sticker.eventEndingHour, sticker.eventEndingMinute);
-    const details=sticker.eventTitle.startsWith("想報")?{
-      title: sticker.eventTitle,
-      startDate:startDate,
-      endDate: endDate,
-      availability:"free",
-      notes:"GalaxyCare Work Schedule"
-    }:{
+    const details={
       title: sticker.eventTitle,
       startDate:startDate,
       endDate: endDate,
@@ -96,6 +94,7 @@ export default function JobCalendarScreen({ navigation }) {
       notes:"GalaxyCare Work Schedule"
     };
     await Calendar.createEventAsync(CalendarID, details);
+    loadEventsArray();
   }
 
   async function getDefaultCalendarSource() {
@@ -122,71 +121,102 @@ export default function JobCalendarScreen({ navigation }) {
     return newCalendarID;
   }
 
-  React.useEffect(() => {
-    (async () => {
-      const { status } = await Calendar.requestCalendarPermissionsAsync();
-      if (status === 'granted') {
-        const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-        const calendarsIDArray = calendars.map(calendar => { calendar.id });
-        const startDate = new Date(queryYear, queryMonth, 1);
-        const endDate = new Date(queryYear, queryMonth + 1, 1);
-        const eventsArray = await Calendar.getEventsAsync(
-          calendarsIDArray,
-          startDate,
-          endDate
-        );
-        setEventsArray(eventsArray)
-      }
-    })();
-  }, [queryMonth]);
-
-  React.useEffect(() => {
-    function calendarDateArray() {
-      const numOfDaysInMonth = new Date(queryYear, queryYear, 0).getDate();
-      const weekdayOfFirstDayInMonth = new Date(
-        queryYear,
-        queryMonth,
-        1
-      ).getDay();
-      //Building 6 x 7 2D Array
-      var sixWeeksArrayFrame = new Array(6);
-      for (var i = 0; i < sixWeeksArrayFrame.length; i++) {
-        sixWeeksArrayFrame[i] = new Array(7);
-      }
-      var day = 1;
-      for (var i = 0; i < sixWeeksArrayFrame.length; i++) {
-        for (var j = 0; j < sixWeeksArrayFrame[i].length; j++) {
-          if (i == 0 && j < weekdayOfFirstDayInMonth) {
-            sixWeeksArrayFrame[i][j] = null;
-          } else if ((i == 5) & (j == 6)) {
-            sixWeeksArrayFrame[i][j] = "image";
-          } else if (day > numOfDaysInMonth) {
-            sixWeeksArrayFrame[i][j] = null;
-          } else {
-            sixWeeksArrayFrame[i][j] = day;
-            day++;
-          }
+  function calendarDateArray() {
+    const numOfDaysInMonth = new Date(queryYear, queryYear, 0).getDate();
+    const weekdayOfFirstDayInMonth = new Date(
+      queryYear,
+      queryMonth,
+      1
+    ).getDay();
+    //Building 6 x 7 2D Array
+    var sixWeeksArrayFrame = new Array(6);
+    for (var i = 0; i < sixWeeksArrayFrame.length; i++) {
+      sixWeeksArrayFrame[i] = new Array(7);
+    }
+    var day = 1;
+    for (var i = 0; i < sixWeeksArrayFrame.length; i++) {
+      for (var j = 0; j < sixWeeksArrayFrame[i].length; j++) {
+        if (i == 0 && j < weekdayOfFirstDayInMonth) {
+          sixWeeksArrayFrame[i][j] = null;
+        } else if ((i == 5) & (j == 6)) {
+          sixWeeksArrayFrame[i][j] = "image";
+        } else if (day > numOfDaysInMonth) {
+          sixWeeksArrayFrame[i][j] = null;
+        } else {
+          sixWeeksArrayFrame[i][j] = day;
+          day++;
         }
       }
-      buildCalendarArray(sixWeeksArrayFrame);
     }
+    buildCalendarArray(sixWeeksArrayFrame);
+  }
+
+  async function loadEventsArray(){
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status === 'granted') {
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      const calendarsIDArray = calendars.map(calendar => { calendar.id });
+      const startDate = new Date(queryYear, queryMonth, 1);
+      const endDate = new Date(queryYear, queryMonth + 1, 1);
+      const eventsArray = await Calendar.getEventsAsync(
+        calendarsIDArray,
+        startDate,
+        endDate
+      );
+      setEventsArray(eventsArray)
+    }
+  };
+
+  function deleteEvent(eventID){
+    Alert.alert(
+      "確定要刪除此事項?",
+      "",
+      [
+        {
+          text: "取消",
+          onPress: () => {},
+        },
+        { text: "刪除", onPress: async() => {
+          await Calendar.deleteEventAsync(eventID)
+          loadEventsArray();
+        } }
+      ]
+    );
+  }
+
+  React.useEffect(() => {
+    loadEventsArray();
     calendarDateArray();
     loadStickerArray();
     loadAppsCalendarID();
   }, [queryMonth]);
 
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadStickerArray();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   return (
-    <View style={styles.screenContainer}>
+    <SafeAreaView style={styles.screenContainer}>
       {isQuickAdding ?
         <View style={styles.stickerRow}>
           <FlatList horizontal={true} data={stickerArray}
             renderItem={this.renderItem}
-            style={{ padding: 10, height:"100%", width:"80%"}}
+            style={{ padding: 10, height:"100%", width:"70%", zIndex:1001}}
             keyExtractor={(item, index) => index.toString()} />
           <View>
-            <TouchableOpacity style={{height:"100%", justifyContent:"center"}} onPress={()=>{switchIsQuickAdding(false)}}>
-            <AntDesign name="back" size={24} color="black" />
-            <Text>月份</Text>
+            <TouchableOpacity style={{height:"100%", justifyContent:"center", marginRight:10}} onPress={()=>{switchIsQuickAdding(false)}}>
+            <AntDesign name="back" size={24} color="#34c759" />
+            <Text>返回</Text>
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity style={{height:"100%", justifyContent:"center", marginRight:10}} onPress={()=>{switchIsQuickAdding(false)}}>
+            <MaterialIcons name="sort" size={24} color="#34c759" />
+            <Text>整理</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -214,7 +244,7 @@ export default function JobCalendarScreen({ navigation }) {
             <TouchableOpacity
               style={styles.controlButton}
               onPress={() => {
-                navigation.navigate("常用事項");
+                navigation.navigate("新增常用事項");
               }}
             >
               <MaterialCommunityIcons
@@ -290,10 +320,8 @@ export default function JobCalendarScreen({ navigation }) {
                     {dayEventsArray.map((event) => {
                       return (
                         <View style={styles.eventPotContainer}>
-                          <Text style={styles.calendarEventTitle}>{event.title}</Text>
-                          <View style={styles.sticker}>
-                            
-                          </View>
+                          <Text style={event.notes=="GalaxyCare Work Schedule"?styles.calendarEventTitle:styles.calendarEventTitleLowPriority}>{event.title}</Text>
+                          {event.notes=="GalaxyCare Work Schedule"?<View style={styles.sticker}></View>:null}
                         </View>
                       )
                     })}
@@ -304,7 +332,22 @@ export default function JobCalendarScreen({ navigation }) {
           );
         })}
       </View>
-    </View>
+      {eventsArray.filter(event=>new Date(event.startDate).getDate()==queryDay).length>0?
+      <View style={styles.eventDetails}>
+        {eventsArray.filter(event=>new Date(event.startDate).getDate()==queryDay).map(event=>{
+          return(
+            <TouchableOpacity style={styles.eventRow} onLongPress={()=>{deleteEvent(event.id)}}>
+            <SimpleLineIcons name="event" size={24} color="white" />
+            <Text style={styles.eventTitleText}>{event.title} {event.location}</Text>
+            {event.allDay?
+            <Text style={styles.eventTimeText}>全日</Text>:
+            <Text style={styles.eventTimeText}>{new Date(event.startDate).getHours()<10?'0'+ new Date(event.startDate).getHours():new Date(event.startDate).getHours()} : {new Date(event.startDate).getMinutes()<10?'0'+ new Date(event.startDate).getMinutes():new Date(event.startDate).getMinutes()} - {new Date(event.endDate).getHours()<10?'0'+ new Date(event.endDate).getHours():new Date(event.endDate).getHours()} : {new Date(event.endDate).getMinutes()<10?'0'+ new Date(event.endDate).getMinutes():new Date(event.endDate).getMinutes()}</Text>}
+            </TouchableOpacity>
+          )
+        })}
+        <Text style={styles.deleteHints}>長按以刪除事項</Text>
+      </View>:null}
+    </SafeAreaView>
   );
 }
 
@@ -312,7 +355,7 @@ const { height } = Dimensions.get("window");
 const styles = StyleSheet.create({
   screenContainer: {
     backgroundColor: "#ffcc00",
-    height: height,
+    height: height-78,
     justifyContent: "center",
     alignItems: "center",
     padding: height * 0.01,
@@ -321,16 +364,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
+    flex:0.8,
   },
   stickerRow: {
     flexDirection: "row",
     backgroundColor: "white",
     width: "95%",
     borderRadius: 20,
-    height: "10%",
-    marginBottom: 10,
     alignItems:"center",
-    paddingRight:5
+    marginRight:5,
+    flex:0.8,
+    marginBottom:5,
   },
   controlPanelContainer: {
     flexDirection: "row",
@@ -354,18 +398,24 @@ const styles = StyleSheet.create({
     fontFamily: "SF-Pro-Rounded-Ultralight",
   },
   calendarEventTitle: {
+    fontFamily: "SF-Pro-Rounded-Black",
+    fontSize: 12,
+    textAlign: "center"
+  },
+  calendarEventTitleLowPriority: {
     fontFamily: "SF-Pro-Rounded-Ultralight",
     fontSize: 12,
     textAlign: "center"
   },
   calendarContainer: {
-    height: height * 0.75,
+    flex:7,
     width: "95%",
     backgroundColor: "white",
     borderRadius: 10,
     padding: 10,
     justifyContent: "center",
     alignContent: "center",
+    marginBottom:5
   },
   calendarImage: {
     height: "80%",
@@ -416,4 +466,35 @@ const styles = StyleSheet.create({
     fontFamily:"SF-Pro-Text-Bold",
     color:"white"
   },
+  eventDetails:{
+    flex:2,
+    backgroundColor:"white",
+    width:"95%",
+    borderBottomEndRadius:10,
+    borderBottomStartRadius:10,
+    top:-10,
+    padding:10
+  },
+  eventTitleText:{
+    marginLeft:10,
+    alignSelf:"center",
+    color:"white"
+  },
+  eventRow:{
+    flexDirection:"row",
+    backgroundColor:"#5ac7fa",
+    marginBottom:3,
+    padding:5
+  },
+  eventTimeText:{
+    fontFamily:"SF-Pro-Rounded-Ultralight",
+    marginLeft:"auto",
+    marginRight:5,
+    justifyContent:"center"
+  },
+  deleteHints:{
+    alignSelf:"center",
+    marginTop:"auto",
+    color:"#aeaeb2"
+  }
 });
