@@ -28,7 +28,7 @@ const calendarImage = require("../assets/images/registerImage.png");
 var stickerArray;
 var AppsCalendarID;
 
-export default function JobCalendarScreen({ navigation }) {
+export default function JobCalendarScreen({ route, navigation }) {
   const today = new Date().getDate();
   const [queryMonth, setMonth] = React.useState(new Date().getMonth()); //In 0-based
   const [queryYear, setYear] = React.useState(new Date().getFullYear());
@@ -122,7 +122,7 @@ export default function JobCalendarScreen({ navigation }) {
   }
 
   function calendarDateArray() {
-    const numOfDaysInMonth = new Date(queryYear, queryYear, 0).getDate();
+    const numOfDaysInMonth = new Date(queryYear, queryMonth+1, 0).getDate();
     const weekdayOfFirstDayInMonth = new Date(
       queryYear,
       queryMonth,
@@ -192,12 +192,33 @@ export default function JobCalendarScreen({ navigation }) {
   }, [queryMonth]);
 
   React.useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
+    const unsubscribe = navigation.addListener('focus', async() => {
       loadStickerArray();
+      const jsonValue = await AsyncStorage.getItem("PendingAddEvent");
+      const pendingAddJob = jsonValue? JSON.parse(jsonValue):null;
+      if(pendingAddJob != null){
+        const CalendarID = AppsCalendarID? AppsCalendarID:await loadAppsCalendarID();
+        const details={
+          title: pendingAddJob.institutionName,
+          startDate:new Date(pendingAddJob.startTime.seconds*1000),
+          endDate: new Date(pendingAddJob.endTime.seconds*1000),
+          availability:"busy",
+          notes:"GalaxyCare Work Schedule"
+        };
+        await Calendar.createEventAsync(CalendarID, details)
+        .then(async()=>{
+          await AsyncStorage.setItem("PendingAddEvent", "");
+          loadEventsArray();
+        })
+        .catch(e=>{
+          console.log("Error", e)
+        })
+      }
     });
-
     return unsubscribe;
   }, [navigation]);
+
+  
 
   return (
     <SafeAreaView style={styles.screenContainer}>

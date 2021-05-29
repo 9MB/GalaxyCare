@@ -17,6 +17,10 @@ import firestore from "@react-native-firebase/firestore";
 import { Picker } from "@react-native-picker/picker";
 
 const registerImage = require("../assets/images/registerImage.png");
+const genderOptions = [
+  { label: "男", value: "male" },
+  { label: "女", value: "female" },
+];
 const jobOptions = [
   { label: "護理職系", value: "nurse" },
   { label: "助理職系", value: "assistant" },
@@ -33,6 +37,7 @@ const hcaOptions = [
 
 export default function RegisterScreen({ navigation }) {
   const [fullname, onChangeFullName] = React.useState("");
+  const [gender, onChangeGender] = React.useState("");
   const [phone, onChangePhone] = React.useState("");
   const [email, onChangeEmail] = React.useState("");
   const [password, onChangePassword] = React.useState("");
@@ -52,6 +57,7 @@ export default function RegisterScreen({ navigation }) {
   }, [
     navigation,
     fullname,
+    gender,
     phone,
     email,
     password,
@@ -67,7 +73,9 @@ export default function RegisterScreen({ navigation }) {
       Alert.alert("電話號碼需為8位數字");
     } else if (email.replace(/\s/g, "").length < 2) {
       Alert.alert("電郵地址不能為空白");
-    } else if (
+    } else if(gender == ""){
+      Alert.alert("請選擇性別");
+    }else if (
       password.replace(/\s/g, "").length < 5 ||
       password != confirmPassword
     ) {
@@ -110,12 +118,15 @@ export default function RegisterScreen({ navigation }) {
   const createUserOnFirestore = async () => {
     const memberInfo = {
       fullname: fullname,
+      gender:gender,
       rank: rank,
       preferLocation: preferLocation,
       phone: phone,
       email: email,
       builtDate: new Date(),
       activated: false,
+      currentlyAppliedJob:[],
+      completedJob:[]
     };
 
     await firestore()
@@ -172,6 +183,14 @@ export default function RegisterScreen({ navigation }) {
             autoCorrect={false}
             secureTextEntry={true}
           />
+          <Text style={styles.instruction}>性別</Text>
+          <SwitchSelector
+            options={genderOptions}
+            value={gender}
+            onPress={(value) => {
+              onChangeGender(value);
+            }}
+          />
           <Text style={styles.instruction}>申請職銜</Text>
           <SwitchSelector
             options={jobOptions}
@@ -207,7 +226,7 @@ export default function RegisterScreen({ navigation }) {
               setPreferLocation(itemValue)
             }
           >
-            <Picker.Item label="" value="" />
+            <Picker.Item label="滑動選擇" value="" />
             <Picker.Item label="九龍東" value="KEC" />
             <Picker.Item label="九龍中" value="KCC" />
             <Picker.Item label="九龍西" value="KWC" />
@@ -264,7 +283,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     height: "20%",
-    width: "100%",
+    width: "40%",
     alignItems: "flex-end",
     top: height * 0.8,
     position: "absolute",

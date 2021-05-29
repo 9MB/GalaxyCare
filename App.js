@@ -28,7 +28,7 @@ const AppTab = createBottomTabNavigator();
 function Calendar() {
   return (
     <CalendarStack.Navigator initialRouteName="工作日歷">
-      <CalendarStack.Screen name="工作日歷" component={JobCalendarScreen} options={{ headerShown: false }} />
+      <CalendarStack.Screen name="工作日歷" component={JobCalendarScreen} options={{ headerShown: false }}/>
       <CalendarStack.Screen name="新增常用事項" component={StickerCreatingScreen} options={{ headerStyle: { backgroundColor: "#ffcc00" }, headerTintColor: "white" }} />
     </CalendarStack.Navigator>
   )
