@@ -126,7 +126,10 @@ export default function RegisterScreen({ navigation }) {
       builtDate: new Date(),
       activated: false,
       currentlyAppliedJob:[],
-      completedJob:[]
+      completedJob:[],
+      vacination:0,
+      lastNCovid: null,
+      covidResult: null
     };
 
     await firestore()

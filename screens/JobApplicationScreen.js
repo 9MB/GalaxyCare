@@ -33,10 +33,6 @@ export default function JobApplicationScreen({ route, navigation }) {
       : false;
 
   async function applyJob() {
-    let objectToBeMerged = {
-      applyTime: new Date(),
-    };
-    const applyMemberInfo = Object.assign(memberInfo, objectToBeMerged);
     firestore()
       .collection("jobs")
       .doc(jobInfo.jobID)
@@ -57,7 +53,7 @@ export default function JobApplicationScreen({ route, navigation }) {
               .doc(jobInfo.jobID)
               .update({
                 appliedMembers:
-                  firestore.FieldValue.arrayUnion(applyMemberInfo),
+                  firestore.FieldValue.arrayUnion(memberInfo),
               })
               .then(async() => {
                 Alert.alert(
