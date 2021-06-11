@@ -230,13 +230,9 @@ export default function RegisterScreen({ navigation }) {
             }
           >
             <Picker.Item label="滑動選擇" value="" />
-            <Picker.Item label="九龍東" value="KEC" />
-            <Picker.Item label="九龍中" value="KCC" />
-            <Picker.Item label="九龍西" value="KWC" />
-            <Picker.Item label="新界西" value="NTWC" />
-            <Picker.Item label="新界東" value="NTEC" />
-            <Picker.Item label="港島西" value="HKWC" />
-            <Picker.Item label="港島東" value="HKEC" />
+            <Picker.Item label="九龍" value="Kowloon" />
+            <Picker.Item label="新界" value="New Territories" />
+            <Picker.Item label="港島" value="Hong Kong Island" />
           </Picker>
         </View>
         <View style={styles.imageContainer}>

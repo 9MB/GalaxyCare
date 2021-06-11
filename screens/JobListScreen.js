@@ -17,13 +17,9 @@ import auth from '@react-native-firebase/auth';
 
 const locationOptions = [
   "全選",
-  "九龍東(KEC)",
-  "九龍中(KCC)",
-  "九龍西(KWC)",
-  "新界東(NTEC)",
-  "新界西(NTWC)",
-  "港島東(HKEC)",
-  "港島西(HKWC)",
+  "九龍",
+  "新界",
+  "港島",
 ];
 
 export default function JobListScreen({ navigation }) {
@@ -71,7 +67,7 @@ export default function JobListScreen({ navigation }) {
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      fetchJobsFromDB();
+      //fetchJobsFromDB();
     });
     return unsubscribe;
   }, [navigation]);
@@ -83,26 +79,14 @@ export default function JobListScreen({ navigation }) {
       case "全選":
         setFilteredJobArray([...tmpFetchedJobArray]);
         break;
-      case "九龍東(KEC)":
-        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "九龍東(KEC)")]);
+      case "九龍":
+        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "Kowloon")]);
         break;
-      case "九龍中(KCC)":
-        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "九龍中(KCC)")]);
+      case "新界":
+        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "New Territories")]);
         break;
-      case "九龍西(KWC)":
-        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "九龍西(KWC)")]);
-        break;
-      case "新界西(NTWC)":
-        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "新界西(NTWC)")]);
-        break;
-      case "新界東(NTEC)":
-        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "新界東(NTEC)")]);
-        break;
-      case "港島東(HKEC)":
-        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "港島東(HKEC)")]);
-        break;
-      case "港島西(HKWC)":
-        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "港島西(HKWC)")]);
+      case "港島":
+        setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "Hong Kong Island")]);
         break;
     }
   }
