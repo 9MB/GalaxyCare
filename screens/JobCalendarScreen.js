@@ -15,7 +15,8 @@ import {
   MaterialCommunityIcons,
   FontAwesome5,
   SimpleLineIcons,
-  MaterialIcons
+  MaterialIcons,
+  Entypo
 } from "@expo/vector-icons";
 import * as Calendar from "expo-calendar";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -36,6 +37,7 @@ export default function JobCalendarScreen({ route, navigation }) {
   const [calendarArray, buildCalendarArray] = React.useState([]);
   const [eventsArray, setEventsArray] = React.useState([]);
   const [isQuickAdding, switchIsQuickAdding] = React.useState(false);
+  const [isEditingSticker, switchIsEditingSticker] = React.useState(false);
 
   function nextMonth() {
     if (queryMonth == 11) {
@@ -61,8 +63,10 @@ export default function JobCalendarScreen({ route, navigation }) {
 
   renderItem = ({item}) =>{
     return(
-      <TouchableOpacity style={styles.stickerPreview} onPress={()=>{createEvent(item)}}>
+      <TouchableOpacity style={styles.stickerPreview} onPress={isEditingSticker?()=>{deleteSticker(item)}:()=>{createEvent(item)}}>
         <Text adjustsFontSizeToFit={true} style={styles.stickerText}>{item.eventTitle}</Text>
+        {isEditingSticker?
+        <Entypo name="circle-with-cross" size={15} color="#ff3a30" />:null}
       </TouchableOpacity>
     )
   }
@@ -95,6 +99,14 @@ export default function JobCalendarScreen({ route, navigation }) {
     };
     await Calendar.createEventAsync(CalendarID, details);
     loadEventsArray();
+  }
+
+  async function deleteSticker(item){
+    const removed = stickerArray.filter(sticker=>sticker!=item);
+    const jsonValue = JSON.stringify(removed);
+    await AsyncStorage.setItem("StickerList", jsonValue);
+    await loadStickerArray();
+    switchIsEditingSticker(false);
   }
 
   async function getDefaultCalendarSource() {
@@ -235,7 +247,7 @@ export default function JobCalendarScreen({ route, navigation }) {
             </TouchableOpacity>
           </View>
           <View>
-            <TouchableOpacity style={{height:"100%", justifyContent:"center", marginRight:10}} onPress={()=>{switchIsQuickAdding(false)}}>
+            <TouchableOpacity style={{height:"100%", justifyContent:"center", marginRight:10}} onPress={()=>{switchIsEditingSticker(true)}}>
             <MaterialIcons name="sort" size={24} color="#34c759" />
             <Text>整理</Text>
             </TouchableOpacity>
