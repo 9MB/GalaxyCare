@@ -21,13 +21,16 @@ import {
 import * as Calendar from "expo-calendar";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import defaultStickerList from "../components/defaultStickerList";
-
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
 
 
 const calendarImage = require("../assets/images/registerImage.png");
 
 var stickerArray;
 var AppsCalendarID;
+
+
 
 export default function JobCalendarScreen({ route, navigation }) {
   const today = new Date().getDate();
@@ -76,6 +79,18 @@ export default function JobCalendarScreen({ route, navigation }) {
     stickerArray = jsonStickerArray?JSON.parse(jsonStickerArray):defaultStickerList;
   }
 
+  async function getNotificationAsync() {
+    // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
+    const { status, permissions } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    if (status === 'granted') {
+      return true;
+    } else {
+      alert("請在手機設置容許Galaxy Care發佈通知");
+      return true;
+    }
+  }
+  
+
   async function loadAppsCalendarID(){
     const jsonAppsCalendarID = await AsyncStorage.getItem("AppsCalendarID");
     AppsCalendarID = jsonAppsCalendarID?JSON.parse(jsonAppsCalendarID):undefined;
@@ -90,6 +105,11 @@ export default function JobCalendarScreen({ route, navigation }) {
     const startDate = new Date(queryYear, queryMonth, queryDay, parseInt(sticker.eventStartingHour), parseInt(sticker.eventStartingMinute));
     const compareEndDate = new Date(queryYear, queryMonth, queryDay, parseInt(sticker.eventEndingHour), parseInt(sticker.eventEndingMinute));
     const endDate = compareEndDate.getTime()>startDate.getTime()?compareEndDate:new Date(queryYear, queryMonth, parseInt(queryDay)+1, sticker.eventEndingHour, sticker.eventEndingMinute);
+    const timeDiff = Math.abs((
+      startDate.getTime() -
+        new Date().getTime())
+     / 1000);
+    console.log("TimeDiffSeconds", timeDiff)
     const details={
       title: sticker.eventTitle,
       startDate:startDate,
@@ -98,6 +118,22 @@ export default function JobCalendarScreen({ route, navigation }) {
       notes:"GalaxyCare Work Schedule"
     };
     await Calendar.createEventAsync(CalendarID, details);
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+      }),
+    });
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: sticker.eventTitle,
+        body: 'Galaxy Care提提您準時上班喔!',
+      },
+      trigger: {
+        seconds: timeDiff - 3600,
+      },
+    });
     loadEventsArray();
   }
 
@@ -195,6 +231,9 @@ export default function JobCalendarScreen({ route, navigation }) {
       ]
     );
   }
+  React.useEffect(()=>{
+    getNotificationAsync()
+  },[])
 
   React.useEffect(() => {
     loadEventsArray();
@@ -209,6 +248,10 @@ export default function JobCalendarScreen({ route, navigation }) {
       const jsonValue = await AsyncStorage.getItem("PendingAddEvent");
       const pendingAddJob = jsonValue? JSON.parse(jsonValue):null;
       if(pendingAddJob != null){
+        const timeDiff = Math.abs((
+          new Date(pendingAddJob.startTime.seconds*1000).getTime() -
+            new Date().getTime())
+         / 1000);
         const CalendarID = AppsCalendarID? AppsCalendarID:await loadAppsCalendarID();
         const details={
           title: pendingAddJob.institutionName,
@@ -220,6 +263,22 @@ export default function JobCalendarScreen({ route, navigation }) {
         await Calendar.createEventAsync(CalendarID, details)
         .then(async()=>{
           await AsyncStorage.setItem("PendingAddEvent", "");
+          Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+              shouldShowAlert: true,
+              shouldPlaySound: false,
+              shouldSetBadge: false,
+            }),
+          });
+          Notifications.scheduleNotificationAsync({
+            content: {
+              title: sticker.eventTitle,
+              body: 'Galaxy Care提提您準時上班喔!',
+            },
+            trigger: {
+              seconds: timeDiff - 3600,
+            },
+          });
           loadEventsArray();
         })
         .catch(e=>{

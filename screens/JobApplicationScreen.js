@@ -16,9 +16,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const backgroundImage = require("../assets/images/applicationBackground.jpg");
 
+
 export default function JobApplicationScreen({ route, navigation }) {
   const { jobInfo } = route.params;
-  var memberInfo;
+  const [salaryRef, setSalaryRef] = React.useState();
+  const [memberInfo, setMemberInfo] = React.useState();
   const appliedStatus =
     jobInfo.appliedMembers.filter(
       (member) => member.email == auth().currentUser.email
@@ -33,6 +35,7 @@ export default function JobApplicationScreen({ route, navigation }) {
       : false;
 
   async function applyJob() {
+    console.log("memberInfo", memberInfo)
     firestore()
       .collection("jobs")
       .doc(jobInfo.jobID)
@@ -108,11 +111,22 @@ export default function JobApplicationScreen({ route, navigation }) {
       });
   }
 
+  function calculateSalary(hours){
+    return salaryRef[hours];
+  }
+
   React.useEffect(() => {
     async function getEmployeeInfo() {
       const jsonValue = await AsyncStorage.getItem("MemberInfoLocal");
       if (jsonValue !== null) {
-        memberInfo = JSON.parse(jsonValue);
+        const member = JSON.parse(jsonValue);
+        setMemberInfo(member);
+      }
+      const jsonSalary = await AsyncStorage.getItem("SalaryRef");
+      if (jsonSalary !== null) {
+        const salaryChart = JSON.parse(jsonSalary);
+        setSalaryRef(salaryChart);
+        
       }
     }
     getEmployeeInfo();
@@ -120,6 +134,7 @@ export default function JobApplicationScreen({ route, navigation }) {
 
   return (
     <View style={styles.screenContainer}>
+      {salaryRef && memberInfo?
       <ImageBackground source={backgroundImage} style={styles.image}>
         <SafeAreaView style={styles.container}>
           <View style={styles.infoRow}>
@@ -184,7 +199,10 @@ export default function JobApplicationScreen({ route, navigation }) {
               <Text style={styles.infoLabelText}>完成資薪</Text>
             </View>
             <View style={styles.infoLabelLong}>
-              <Text style={styles.infoText}> 港元</Text>
+              <Text style={styles.infoText}> {calculateSalary(Math.abs(
+                  new Date(jobInfo.endTime.seconds * 1000).getTime() -
+                    new Date(jobInfo.startTime.seconds * 1000).getTime()
+                ) / 36e5)} 港元</Text>
             </View>
           </View>
           <View style={styles.infoRow}>
@@ -225,6 +243,7 @@ export default function JobApplicationScreen({ route, navigation }) {
         )}
         <Text style={styles.referenceText}>招聘編號:{jobInfo.jobID}</Text>
       </ImageBackground>
+      :null}
     </View>
   );
 }

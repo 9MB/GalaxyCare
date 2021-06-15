@@ -7,10 +7,10 @@ import {
   TextInput,
   ScrollView,
   FlatList,
-  Dimensions
+  Dimensions,
+  TouchableOpacity
 } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons'; 
-import { TouchableOpacity } from "react-native-gesture-handler";
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
@@ -23,6 +23,7 @@ const locationOptions = [
 ];
 
 export default function JobListScreen({ navigation }) {
+  var salaryRef;
   const [filterLocation, setFilterLocation] = React.useState("");
   const [isExpandingPicker, switchIsExpandingPicker] = React.useState(false);
   const [fetchJobArray, setFetchJobArray] = React.useState([]);
@@ -61,13 +62,41 @@ export default function JobListScreen({ navigation }) {
       })
   }
 
+  function rankFirebaseLocation(rank){
+    switch(rank){
+      case "RN":
+        return "RN_Salary";
+      case "EN":
+        return "EN_Salary";
+      case "HW":
+        return "HW_Salary";
+      case "PCW":
+        return "PCW_salary";
+      case "WM":
+        return "WM_salary";
+
+    }
+  }
+
+  async function fetchCurrency(){
+    const memberInfo = await getEmployeeInfo();
+    const ref = rankFirebaseLocation(memberInfo.rank);
+    firestore().collection("variables").doc(ref).get()
+    .then(async(doc)=>{
+      const jsonValue = JSON.stringify(doc.data());
+      await AsyncStorage.setItem("SalaryRef", jsonValue);
+      salaryRef = jsonValue;
+    })
+  }
+
   React.useEffect(() => {
     fetchJobsFromDB();
+    fetchCurrency();
   }, [])
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      //fetchJobsFromDB();
+      fetchJobsFromDB();
     });
     return unsubscribe;
   }, [navigation]);
@@ -93,7 +122,7 @@ export default function JobListScreen({ navigation }) {
 
   renderItem = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.jobRowContainer} onPress={() => { navigation.navigate("應徵", { companyName: item.institutionName, jobInfo: item }) }}>
+      <TouchableOpacity style={styles.jobRowContainer} onPress={() => { navigation.navigate("應徵", { companyName: item.institutionName, jobInfo: item, salaryRef: salaryRef }) }}>
         <MaterialIcons name="work" size={35} color="#B4F8C8" />
         <View style={styles.infoColumn}>
           <Text style={styles.jobCompanyTitle}>{item.institutionName}</Text>
@@ -103,7 +132,7 @@ export default function JobListScreen({ navigation }) {
           <Text style={styles.regionText}>{item.institutionRegion.slice(0, 3)}</Text>
         </View>
         <View style={styles.statusBox}>
-          <Text style={styles.regionText}>{item.appliedMembers.filter(member=>member.email==auth().currentUser.email).length>0?"已申請":"未申請"}</Text>
+          <Text style={styles.regionText}>{item.recruitedMembers.filter(member=>member.email==auth().currentUser.email).length>0?"已獲聘":item.appliedMembers.filter(member=>member.email==auth().currentUser.email).length>0?"已申請":"未申請"}</Text>
         </View>
       </TouchableOpacity>
     )

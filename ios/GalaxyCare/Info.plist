@@ -37,18 +37,20 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCalendarsUsageDescription</key>
+	<string>GalaxyCare需要使用日歷權限</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
-	<key>NSCalendarsUsageDescription</key>
-<string>GalaxyCare需要使用日歷權限</string>
-<key>NSRemindersUsageDescription</key>
-<string>GalaxyCare需要使用備忘錄權限</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>GalaxyCare需要使用備忘錄權限</string>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDefault</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -57,7 +59,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleDefault</string>
+	<key>UNNotificationExtensionInitialContentSizeRatio</key>
+	<string></string>
+	<key>UNNotificationExtensionCategory</key>
+	<string></string>
 </dict>
 </plist>
