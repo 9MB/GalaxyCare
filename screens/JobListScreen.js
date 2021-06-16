@@ -10,7 +10,7 @@ import {
   Dimensions,
   TouchableOpacity
 } from "react-native";
-import { MaterialIcons } from '@expo/vector-icons'; 
+import { MaterialIcons } from '@expo/vector-icons';
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
@@ -29,7 +29,7 @@ export default function JobListScreen({ navigation }) {
   const [fetchJobArray, setFetchJobArray] = React.useState([]);
   const [filteredJobArray, setFilteredJobArray] = React.useState([]);
 
-  async function getEmployeeInfo(){
+  async function getEmployeeInfo() {
     const jsonValue = await AsyncStorage.getItem("MemberInfoLocal");
     if (jsonValue !== null) {
       const memberInfo = JSON.parse(jsonValue);
@@ -47,12 +47,23 @@ export default function JobListScreen({ navigation }) {
       .where("rank", "==", memberInfo.rank)
       .get()
       .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
+        querySnapshot.forEach(async (doc) => {
           const jobObject = doc.data();
           const jobID = { jobID: doc.id };
           const mergeObject = Object.assign(jobObject, jobID);
+          const jsonValue = await AsyncStorage.getItem("SuccessfulPaired");
+          var successArray = jsonValue != null ? JSON.parse(jsonValue) : [];
+          console.log("SuccessArray", successArray)
           tmpJobArray.push(mergeObject)
           console.log("", tmpJobArray)
+          if (!successArray.filter(job => job == mergeObject)) {
+            if (mergeObject.recruitedMembers.filter(member => member.email == memberInfo.email)) {
+              alert("您有新的成功配對！請留意上班時間")
+              successArray.push(mergeObject);
+              const jsonArray = JSON.stringify(successArray);
+              await AsyncStorage.setItem("SuccessfulPaired", jsonArray);
+            }
+          }
         })
         setFetchJobArray([...tmpJobArray]);
         setFilteredJobArray([...tmpJobArray]);
@@ -62,8 +73,8 @@ export default function JobListScreen({ navigation }) {
       })
   }
 
-  function rankFirebaseLocation(rank){
-    switch(rank){
+  function rankFirebaseLocation(rank) {
+    switch (rank) {
       case "RN":
         return "RN_Salary";
       case "EN":
@@ -78,20 +89,20 @@ export default function JobListScreen({ navigation }) {
     }
   }
 
-  async function fetchCurrency(){
+  async function fetchCurrency() {
     const memberInfo = await getEmployeeInfo();
     const ref = rankFirebaseLocation(memberInfo.rank);
     firestore().collection("variables").doc(ref).get()
-    .then(async(doc)=>{
-      const jsonValue = JSON.stringify(doc.data());
-      await AsyncStorage.setItem("SalaryRef", jsonValue);
-      salaryRef = jsonValue;
-    })
+      .then(async (doc) => {
+        const jsonValue = JSON.stringify(doc.data());
+        await AsyncStorage.setItem("SalaryRef", jsonValue);
+        salaryRef = jsonValue;
+      })
   }
 
   React.useEffect(() => {
-    fetchJobsFromDB();
-    fetchCurrency();
+    //fetchJobsFromDB();
+    //fetchCurrency();
   }, [])
 
   React.useEffect(() => {
@@ -132,7 +143,7 @@ export default function JobListScreen({ navigation }) {
           <Text style={styles.regionText}>{item.institutionRegion.slice(0, 3)}</Text>
         </View>
         <View style={styles.statusBox}>
-          <Text style={styles.regionText}>{item.recruitedMembers.filter(member=>member.email==auth().currentUser.email).length>0?"已獲聘":item.appliedMembers.filter(member=>member.email==auth().currentUser.email).length>0?"已申請":"未申請"}</Text>
+          <Text style={styles.regionText}>{item.recruitedMembers.filter(member => member.email == auth().currentUser.email).length > 0 ? "已獲聘" : item.appliedMembers.filter(member => member.email == auth().currentUser.email).length > 0 ? "已申請" : "未申請"}</Text>
         </View>
       </TouchableOpacity>
     )
@@ -233,10 +244,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 0.3,
     padding: 15,
-    alignItems:"center",
+    alignItems: "center",
   },
-  infoColumn:{
-    marginLeft:25
+  infoColumn: {
+    marginLeft: 25
   },
   jobCompanyTitle: {
     fontFamily: "SF-Pro-Text-Bold",

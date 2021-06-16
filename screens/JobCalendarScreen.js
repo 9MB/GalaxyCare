@@ -21,8 +21,6 @@ import {
 import * as Calendar from "expo-calendar";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import defaultStickerList from "../components/defaultStickerList";
-import * as Notifications from 'expo-notifications';
-import * as Permissions from 'expo-permissions';
 
 
 const calendarImage = require("../assets/images/registerImage.png");
@@ -41,6 +39,8 @@ export default function JobCalendarScreen({ route, navigation }) {
   const [eventsArray, setEventsArray] = React.useState([]);
   const [isQuickAdding, switchIsQuickAdding] = React.useState(false);
   const [isEditingSticker, switchIsEditingSticker] = React.useState(false);
+
+  
 
   function nextMonth() {
     if (queryMonth == 11) {
@@ -78,17 +78,6 @@ export default function JobCalendarScreen({ route, navigation }) {
     const jsonStickerArray = await AsyncStorage.getItem("StickerList");
     stickerArray = jsonStickerArray?JSON.parse(jsonStickerArray):defaultStickerList;
   }
-
-  async function getNotificationAsync() {
-    // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
-    const { status, permissions } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-    if (status === 'granted') {
-      return true;
-    } else {
-      alert("請在手機設置容許Galaxy Care發佈通知");
-      return true;
-    }
-  }
   
 
   async function loadAppsCalendarID(){
@@ -105,35 +94,15 @@ export default function JobCalendarScreen({ route, navigation }) {
     const startDate = new Date(queryYear, queryMonth, queryDay, parseInt(sticker.eventStartingHour), parseInt(sticker.eventStartingMinute));
     const compareEndDate = new Date(queryYear, queryMonth, queryDay, parseInt(sticker.eventEndingHour), parseInt(sticker.eventEndingMinute));
     const endDate = compareEndDate.getTime()>startDate.getTime()?compareEndDate:new Date(queryYear, queryMonth, parseInt(queryDay)+1, sticker.eventEndingHour, sticker.eventEndingMinute);
-    const timeDiff = Math.abs((
-      startDate.getTime() -
-        new Date().getTime())
-     / 1000);
-    console.log("TimeDiffSeconds", timeDiff)
     const details={
       title: sticker.eventTitle,
       startDate:startDate,
       endDate: endDate,
       availability:"busy",
-      notes:"GalaxyCare Work Schedule"
+      notes:"GalaxyCare Work Schedule",
+      alarms:[{relativeOffset:-90}]
     };
     await Calendar.createEventAsync(CalendarID, details);
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: false,
-        shouldSetBadge: false,
-      }),
-    });
-    Notifications.scheduleNotificationAsync({
-      content: {
-        title: sticker.eventTitle,
-        body: 'Galaxy Care提提您準時上班喔!',
-      },
-      trigger: {
-        seconds: timeDiff - 3600,
-      },
-    });
     loadEventsArray();
   }
 
@@ -215,7 +184,7 @@ export default function JobCalendarScreen({ route, navigation }) {
     }
   };
 
-  function deleteEvent(eventID){
+  function deleteEvent(event){
     Alert.alert(
       "確定要刪除此事項?",
       "",
@@ -225,15 +194,13 @@ export default function JobCalendarScreen({ route, navigation }) {
           onPress: () => {},
         },
         { text: "刪除", onPress: async() => {
-          await Calendar.deleteEventAsync(eventID)
+          await Calendar.deleteEventAsync(event.id)
           loadEventsArray();
         } }
       ]
     );
   }
-  React.useEffect(()=>{
-    getNotificationAsync()
-  },[])
+
 
   React.useEffect(() => {
     loadEventsArray();
@@ -248,37 +215,18 @@ export default function JobCalendarScreen({ route, navigation }) {
       const jsonValue = await AsyncStorage.getItem("PendingAddEvent");
       const pendingAddJob = jsonValue? JSON.parse(jsonValue):null;
       if(pendingAddJob != null){
-        const timeDiff = Math.abs((
-          new Date(pendingAddJob.startTime.seconds*1000).getTime() -
-            new Date().getTime())
-         / 1000);
         const CalendarID = AppsCalendarID? AppsCalendarID:await loadAppsCalendarID();
         const details={
           title: pendingAddJob.institutionName,
           startDate:new Date(pendingAddJob.startTime.seconds*1000),
           endDate: new Date(pendingAddJob.endTime.seconds*1000),
           availability:"busy",
-          notes:"GalaxyCare Work Schedule"
+          notes:"GalaxyCare Work Schedule",
+          alarms:[{relativeOffset:-90}]
         };
         await Calendar.createEventAsync(CalendarID, details)
         .then(async()=>{
           await AsyncStorage.setItem("PendingAddEvent", "");
-          Notifications.setNotificationHandler({
-            handleNotification: async () => ({
-              shouldShowAlert: true,
-              shouldPlaySound: false,
-              shouldSetBadge: false,
-            }),
-          });
-          Notifications.scheduleNotificationAsync({
-            content: {
-              title: sticker.eventTitle,
-              body: 'Galaxy Care提提您準時上班喔!',
-            },
-            trigger: {
-              seconds: timeDiff - 3600,
-            },
-          });
           loadEventsArray();
         })
         .catch(e=>{
@@ -428,7 +376,7 @@ export default function JobCalendarScreen({ route, navigation }) {
       <View style={styles.eventDetails}>
         {eventsArray.filter(event=>new Date(event.startDate).getDate()==queryDay).map(event=>{
           return(
-            <TouchableOpacity style={styles.eventRow} onLongPress={()=>{deleteEvent(event.id)}}>
+            <TouchableOpacity style={styles.eventRow} onLongPress={()=>{deleteEvent(event)}}>
             <SimpleLineIcons name="event" size={24} color="white" />
             <Text style={styles.eventTitleText}>{event.title} {event.location}</Text>
             {event.allDay?
