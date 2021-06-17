@@ -101,8 +101,8 @@ export default function JobListScreen({ navigation }) {
   }
 
   React.useEffect(() => {
-    //fetchJobsFromDB();
-    //fetchCurrency();
+    fetchJobsFromDB();
+    fetchCurrency();
   }, [])
 
   React.useEffect(() => {

@@ -129,7 +129,7 @@ export default function RegisterScreen({ navigation }) {
       completedJob:[],
       vacination:0,
       lastNCovid: null,
-      covidResult: null
+      covidResult: false
     };
 
     await firestore()
