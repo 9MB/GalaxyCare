@@ -51,22 +51,24 @@ export default function JobListScreen({ navigation }) {
           const jobObject = doc.data();
           const jobID = { jobID: doc.id };
           const mergeObject = Object.assign(jobObject, jobID);
-          const jsonValue = await AsyncStorage.getItem("SuccessfulPaired");
-          var successArray = jsonValue != null ? JSON.parse(jsonValue) : [];
-          console.log("SuccessArray", successArray)
           tmpJobArray.push(mergeObject)
           console.log("", tmpJobArray)
-          if (!successArray.filter(job => job == mergeObject)) {
+          /*
+          const jsonValue = await AsyncStorage.getItem("SuccessfulPaired");
+          var successArray = jsonValue != null ? JSON.parse(jsonValue) : [];
+          if (successArray.filter(job => job == mergeObject).length==0) {
             if (mergeObject.recruitedMembers.filter(member => member.email == memberInfo.email)) {
               alert("您有新的成功配對！請留意上班時間")
               successArray.push(mergeObject);
               const jsonArray = JSON.stringify(successArray);
-              await AsyncStorage.setItem("SuccessfulPaired", jsonArray);
+              console.log("Success", successArray)
+              AsyncStorage.setItem("SuccessfulPaired", jsonArray);
             }
-          }
+          }*/
         })
         setFetchJobArray([...tmpJobArray]);
         setFilteredJobArray([...tmpJobArray]);
+        console.log("fetched", fetchJobArray)
       })
       .catch(e => {
         console.log("Error at fetching JobList From DB", e);

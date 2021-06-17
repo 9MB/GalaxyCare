@@ -52,13 +52,13 @@ export default function App() {
   // Handle user state changes
   async function onAuthStateChanged(user) {
     setUser(user);
-    await getEmployeeInfo();
+    await getEmployeeInfo(user);
     if (initializing) setInitializing(false);
   }
 
   async function getEmployeeInfo() {
     await firestore().collection("members")
-      .where("email", "==", auth().currentUser.email)
+      .where("email", "==", user.email)
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(async(doc) => {
@@ -117,7 +117,7 @@ export default function App() {
   return (
     <NavigationContainer>
       {user && auth().currentUser.emailVerified ? (
-        <AppTab.Navigator initialRouteName="我的月結單">
+        <AppTab.Navigator initialRouteName="報更">
           <AppTab.Screen name="工作日歷" component={Calendar} />
           <AppTab.Screen name="報更" component={JobList} />
           <AppTab.Screen name="我的月結單" component={JobBalanceScreen} />

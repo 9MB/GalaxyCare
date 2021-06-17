@@ -83,7 +83,7 @@ export default function JobBalanceScreen() {
           renderItem={renderItem}
           data={balance}
           ListEmptyComponent={
-            <Text style={styles.emptyListText}>您選擇的地區未有工作招聘</Text>
+            <Text style={styles.emptyListText}>您未有已成功配對的工作</Text>
           }
         />:null}
       </View>
