@@ -8,7 +8,8 @@ import {
   ScrollView,
   FlatList,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import firestore from "@react-native-firebase/firestore";
@@ -16,7 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 
 const locationOptions = [
-  "全選",
+  "所有地區",
   "九龍",
   "新界",
   "港島",
@@ -37,6 +38,26 @@ export default function JobListScreen({ navigation }) {
     }
   }
 
+  async function storeSuccessfulPairing(mergeObject) {
+    const jsonValue = await AsyncStorage.getItem("SuccessfulPaired");
+    let successfulArray = jsonValue != null ? JSON.parse(jsonValue) : [];
+    console.log("SuccessfulPair", successfulArray)
+    if (successfulArray.length > 0) {
+      if (successfulArray.filter(pair => pair.jobID == mergeObject.jobID).length > 0) {
+        return;
+      }
+      else {
+        successfulArray.push(mergeObject);
+        await AsyncStorage.setItem("SuccessfulPaired", JSON.stringify(successfulArray));
+        Alert.alert("您有新的工作配對")
+      }
+    }else {
+      successfulArray.push(mergeObject);
+      await AsyncStorage.setItem("SuccessfulPaired", JSON.stringify(successfulArray));
+      Alert.alert("您有新的工作配對")
+    }
+  }
+
   async function fetchJobsFromDB() {
     const now = new Date();
     let tmpJobArray = [];
@@ -52,19 +73,12 @@ export default function JobListScreen({ navigation }) {
           const jobID = { jobID: doc.id };
           const mergeObject = Object.assign(jobObject, jobID);
           tmpJobArray.push(mergeObject)
-          console.log("", tmpJobArray)
-          /*
-          const jsonValue = await AsyncStorage.getItem("SuccessfulPaired");
-          var successArray = jsonValue != null ? JSON.parse(jsonValue) : [];
-          if (successArray.filter(job => job == mergeObject).length==0) {
-            if (mergeObject.recruitedMembers.filter(member => member.email == memberInfo.email)) {
-              alert("您有新的成功配對！請留意上班時間")
-              successArray.push(mergeObject);
-              const jsonArray = JSON.stringify(successArray);
-              console.log("Success", successArray)
-              AsyncStorage.setItem("SuccessfulPaired", jsonArray);
+          console.log("MergeObject", mergeObject)
+          if (mergeObject.recruitedMembers.length > 0) {
+            if (mergeObject.recruitedMembers[0].email == memberInfo.email) {
+              storeSuccessfulPairing(mergeObject);
             }
-          }*/
+          }
         })
         setFetchJobArray([...tmpJobArray]);
         setFilteredJobArray([...tmpJobArray]);
@@ -117,8 +131,9 @@ export default function JobListScreen({ navigation }) {
   function filterJobByLocation(region) {
     var tmpFetchedJobArray = fetchJobArray;
     setFilterLocation(region);
+    switchIsExpandingPicker(false);
     switch (region) {
-      case "全選":
+      case "所有地區":
         setFilteredJobArray([...tmpFetchedJobArray]);
         break;
       case "九龍":
@@ -160,9 +175,6 @@ export default function JobListScreen({ navigation }) {
         placeholderTextColor="white"
         onFocus={() => {
           switchIsExpandingPicker(true);
-        }}
-        onBlur={() => {
-          switchIsExpandingPicker(false);
         }}
       />
       {isExpandingPicker ? (
@@ -223,6 +235,7 @@ const styles = StyleSheet.create({
   optionContainer: {
     flex: 1,
     margin: 10,
+    width: "100%"
   },
   optionText: {
     fontFamily: "SF-Pro-Text-Regular",

@@ -186,10 +186,10 @@ export default function JobApplicationScreen({ route, navigation }) {
             </View>
             <View style={styles.infoLabelLong}>
               <Text style={styles.infoText}>
-                {Math.abs(
-                  new Date(jobInfo.endTime.seconds * 1000).getTime() -
-                    new Date(jobInfo.startTime.seconds * 1000).getTime()
-                ) / 36e5}{" "}
+                {Math.ceil(
+                  (new Date(jobInfo.endTime.seconds * 1000).getTime() -
+                    new Date(jobInfo.startTime.seconds * 1000).getTime())
+                 / 36e5)}{" "}
                 小時
               </Text>
             </View>
@@ -199,10 +199,10 @@ export default function JobApplicationScreen({ route, navigation }) {
               <Text style={styles.infoLabelText}>完成資薪</Text>
             </View>
             <View style={styles.infoLabelLong}>
-              <Text style={styles.infoText}> {calculateSalary(Math.abs(
-                  new Date(jobInfo.endTime.seconds * 1000).getTime() -
-                    new Date(jobInfo.startTime.seconds * 1000).getTime()
-                ) / 36e5)} 港元</Text>
+              <Text style={styles.infoText}> {calculateSalary(Math.ceil(
+                  (new Date(jobInfo.endTime.seconds * 1000).getTime() -
+                    new Date(jobInfo.startTime.seconds * 1000).getTime())
+                 / 36e5))} 港元</Text>
             </View>
           </View>
           <View style={styles.infoRow}>
@@ -274,25 +274,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   infoLabel: {
-    backgroundColor: "#3CAEA3",
+    backgroundColor: "#552583",
     height: "60%",
     width: "20%",
+    padding:5
   },
   infoLabelLong: {
     backgroundColor: "white",
     height: "60%",
     width: "70%",
     alignItems: "center",
+    padding:5
   },
   referenceText: {
     marginTop: "auto",
     marginLeft: 5,
+    fontFamily:"SF-Pro-Rounded-Ultralight"
   },
   infoLabelText: {
     fontFamily: "SF-Pro-Text-Bold",
     alignSelf: "center",
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
   },
   infoText: {
     fontFamily: "SF-Pro-Text-Bold",

@@ -6,11 +6,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const calendarImage = require("../assets/images/registerImage.png");
+var sum = 0;
 
 export default function JobBalanceScreen() {
   const [memberInfo, setMemberInfo] = React.useState();
   const [balance, setBalance] = React.useState();
-  const [salarSheet, setSalarySheet] = React.useState();
+  const [salarySheet, setSalarySheet] = React.useState();
   const signout = () => {
     auth().signOut();
   }
@@ -24,10 +25,11 @@ export default function JobBalanceScreen() {
   }
 
   async function loadSuccessfulPair() {
+    const thisMonth = new Date().getMonth();
     const jsonValue = await AsyncStorage.getItem("SuccessfulPaired");
     const successArray = jsonValue != null ? JSON.parse(jsonValue) : [];
+    const filteredArray = successArray.filter(job=>new Date(job.startTime.seconds*1000).getMonth() == thisMonth);
     setBalance(successArray);
-    console.log("SuccessArray", successArray)
   }
 
   async function fetchCurrency() {
@@ -37,7 +39,8 @@ export default function JobBalanceScreen() {
   }
 
   function calculateSalary(hours){
-    return salarSheet[hours];
+    sum += parseInt(salarySheet[hours]);
+    return salarySheet[hours];
   }
 
   renderItem = ({ item }) => {
@@ -48,10 +51,10 @@ export default function JobBalanceScreen() {
           <Text style={styles.jobCompanyTitle}>{item.institutionName}</Text>
           <Text style={styles.jobTime}>{new Date(item.startTime.seconds * 1000).getMonth() + 1}月{new Date(item.startTime.seconds * 1000).getDate()}日{new Date(item.startTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getHours() : new Date(item.startTime.seconds * 1000).getHours()}:{new Date(item.startTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getMinutes() : new Date(item.startTime.seconds * 1000).getMinutes()}-{new Date(item.endTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getHours() : new Date(item.endTime.seconds * 1000).getHours()}:{new Date(item.endTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getMinutes() : new Date(item.endTime.seconds * 1000).getMinutes()}</Text>
         </View>
-        <Text style={styles.salaryText}> {calculateSalary(Math.abs(
-                  new Date(item.endTime.seconds * 1000).getTime() -
-                    new Date(item.startTime.seconds * 1000).getTime()
-                ) / 36e5)} 港元</Text>
+        <Text style={styles.salaryText}> {calculateSalary(Math.ceil(
+                  (new Date(item.endTime.seconds * 1000).getTime() -
+                    new Date(item.startTime.seconds * 1000).getTime())
+                 / 36e5))} 港元</Text>
       </TouchableOpacity>
     )
   }
@@ -78,14 +81,17 @@ export default function JobBalanceScreen() {
       </View>
       <View style={styles.balanceSheet}>
         <Text style={styles.rankTitle}>本月預期資薪</Text>
-        {balance && salarSheet?
+        {balance && salarySheet?
+        <View>
         <FlatList
           renderItem={renderItem}
           data={balance}
           ListEmptyComponent={
-            <Text style={styles.emptyListText}>您未有已成功配對的工作</Text>
+            <Text style={styles.emptyListText}>本月未有已成功配對的工作</Text>
           }
-        />:null}
+        />
+        <Text>本月資薪: {sum}</Text>
+        </View>:null}
       </View>
       <Button onPress={() => signout()} title="登出" color="#841584" />
     </SafeAreaView>
