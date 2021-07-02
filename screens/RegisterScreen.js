@@ -127,9 +127,9 @@ export default function RegisterScreen({ navigation }) {
       activated: false,
       currentlyAppliedJob:[],
       completedJob:[],
-      vacination:0,
-      lastNCovid: null,
-      covidResult: false
+      vacination:"BioNTech",
+      lastNCovid: new Date(),
+      covidResult: "Negative"
     };
 
     await firestore()

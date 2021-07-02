@@ -9,12 +9,14 @@ import {
   FlatList,
   Dimensions,
   TouchableOpacity,
-  Alert
+  Alert,
+  Platform
 } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const locationOptions = [
   "所有地區",
@@ -22,13 +24,30 @@ const locationOptions = [
   "新界",
   "港島",
 ];
-
+const now = new Date();
 export default function JobListScreen({ navigation }) {
   var salaryRef;
   const [filterLocation, setFilterLocation] = React.useState("");
   const [isExpandingPicker, switchIsExpandingPicker] = React.useState(false);
   const [fetchJobArray, setFetchJobArray] = React.useState([]);
   const [filteredJobArray, setFilteredJobArray] = React.useState([]);
+  const [filterStartDate, setFilterStartDate] = React.useState(new Date(now.getFullYear(), now.getMonth(), 1));
+  const [filterEndDate, setFilterEndDate] = React.useState(new Date(now.getFullYear(), now.getMonth()+1, 0));
+  const [show, setShow] = React.useState(false);
+
+  const onChangeStartDate = async(event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+    setFilterStartDate(currentDate);
+    filterJobByStartTime(currentDate);
+  };
+
+  const onChangeEndDate = async(event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+    setFilterEndDate(currentDate);
+    filterJobByEndTime(currentDate);
+  };
 
   async function getEmployeeInfo() {
     const jsonValue = await AsyncStorage.getItem("MemberInfoLocal");
@@ -59,7 +78,6 @@ export default function JobListScreen({ navigation }) {
   }
 
   async function fetchJobsFromDB() {
-    const now = new Date();
     let tmpJobArray = [];
     const memberInfo = await getEmployeeInfo();
     firestore().collection("jobs")
@@ -129,7 +147,7 @@ export default function JobListScreen({ navigation }) {
   }, [navigation]);
 
   function filterJobByLocation(region) {
-    var tmpFetchedJobArray = fetchJobArray;
+    var tmpFetchedJobArray = filteredJobArray;
     setFilterLocation(region);
     switchIsExpandingPicker(false);
     switch (region) {
@@ -146,6 +164,16 @@ export default function JobListScreen({ navigation }) {
         setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "Hong Kong Island")]);
         break;
     }
+  }
+
+  function filterJobByStartTime(date){
+    var tmpFetchedJobArray = filteredJobArray;
+    setFilteredJobArray([...tmpFetchedJobArray.filter(job=>new Date(job.startTime.seconds*1000).getTime()>date.getTime())])
+  }
+
+  function filterJobByEndTime(date){
+    var tmpFetchedJobArray = filteredJobArray;
+    setFilteredJobArray([...tmpFetchedJobArray.filter(job=>new Date(job.endTime.seconds*1000).getTime()<date.getTime())])
   }
 
   renderItem = ({ item }) => {
@@ -190,12 +218,35 @@ export default function JobListScreen({ navigation }) {
           </ScrollView>
         </View>
       ) : null}
+      <View style={{flexDirection:"row", justifyContent:"center", marginTop:20}}>
+      {filterStartDate?
+      <View style={{width:"30%"}}>
+      <DateTimePicker
+          testID="dateTimePicker"
+          value={filterStartDate}
+          mode="date"
+          is24Hour={true}
+          display="default"
+          onChange={onChangeStartDate}
+        /></View>:null}
+      <Text style={{color:"white", alignSelf:"center", margin:10, fontSize:15}}>至</Text>
+      {filterEndDate?
+      <View style={{width:"30%"}}>
+      <DateTimePicker
+          testID="dateTimePicker"
+          value={filterEndDate}
+          mode="date"
+          is24Hour={true}
+          display="default"
+          onChange={onChangeEndDate}
+        /></View>:null}
+      </View>
       <View style={styles.flatListContainer}>
         <FlatList
           renderItem={renderItem}
           data={filteredJobArray}
           ListEmptyComponent={
-            <Text style={styles.emptyListText}>您選擇的地區未有工作招聘</Text>
+            <Text style={styles.emptyListText}>您選擇的地區/時間未有工作招聘</Text>
           }
         />
       </View>
@@ -223,6 +274,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: "center",
   },
+  filterDateInput: {
+    borderWidth: 1,
+    borderColor: "white",
+    padding: 10,
+    width: "40%",
+    alignSelf: "center",
+    borderRadius: 5,
+    minHeight: 40,
+    marginTop: 20,
+    color: "white",
+    fontSize: 18,
+    textAlign: "center",
+  },
   pickerContainer: {
     height: "25%",
     width: "90%",
@@ -242,7 +306,7 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     width: "100%",
-    height: "95%",
+    height: "80%",
     alignSelf: "center",
     backgroundColor: "white",
     margin: 20,
@@ -260,6 +324,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.3,
     padding: 15,
     alignItems: "center",
+    width:"90%",
+    alignSelf:"center",
+    height:150
   },
   infoColumn: {
     marginLeft: 25
