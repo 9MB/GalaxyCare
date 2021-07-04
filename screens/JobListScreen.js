@@ -27,34 +27,55 @@ const locationOptions = [
 const now = new Date();
 export default function JobListScreen({ navigation }) {
   var salaryRef;
+  const [memberInfo, setMemberInfo] = React.useState();
   const [filterLocation, setFilterLocation] = React.useState("");
   const [isExpandingPicker, switchIsExpandingPicker] = React.useState(false);
   const [fetchJobArray, setFetchJobArray] = React.useState([]);
   const [filteredJobArray, setFilteredJobArray] = React.useState([]);
   const [filterStartDate, setFilterStartDate] = React.useState(new Date(now.getFullYear(), now.getMonth(), 1));
-  const [filterEndDate, setFilterEndDate] = React.useState(new Date(now.getFullYear(), now.getMonth()+1, 0));
+  const [filterEndDate, setFilterEndDate] = React.useState(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+  const [successfulPair, setSuccessfulPair] = React.useState([]);
+  const [selectFilterStart, switchSelectingFilterStart] = React.useState(false);
+  const [selectFilterEnd, switchSelectingFilterEnd] = React.useState(false);
   const [show, setShow] = React.useState(false);
 
-  const onChangeStartDate = async(event, selectedDate) => {
-    const currentDate = selectedDate || date;
+  const onChangeStartDate = async (event, selectedDate) => {
+    switchSelectingFilterStart(false);
+    const currentDate = selectedDate || filterStartDate;
     setShow(Platform.OS === 'ios');
     setFilterStartDate(currentDate);
     filterJobByStartTime(currentDate);
+    
   };
 
-  const onChangeEndDate = async(event, selectedDate) => {
-    const currentDate = selectedDate || date;
+  const onChangeEndDate = async (event, selectedDate) => {
+    switchSelectingFilterEnd(false);
+    const currentDate = selectedDate || filterEndDate;
     setShow(Platform.OS === 'ios');
     setFilterEndDate(currentDate);
     filterJobByEndTime(currentDate);
   };
 
   async function getEmployeeInfo() {
-    const jsonValue = await AsyncStorage.getItem("MemberInfoLocal");
-    if (jsonValue !== null) {
-      const memberInfo = JSON.parse(jsonValue);
-      return memberInfo
-    }
+    firestore().collection("members")
+      .where("email", "==", auth().currentUser.email)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(async (doc) => {
+          const member = doc.data();
+          console.log("Getting MemberInfo On Login", member)
+          await AsyncStorage.setItem("MemberInfoLocal", JSON.stringify(member));
+          setMemberInfo(member);
+        })
+      })
+  }
+
+  async function loadSuccessfulPair() {
+    const thisMonth = new Date().getMonth();
+    const jsonValue = await AsyncStorage.getItem("SuccessfulPaired");
+    const successArray = jsonValue != null ? JSON.parse(jsonValue) : [];
+    const filteredArray = successArray.filter(job => new Date(job.startTime.seconds * 1000).getMonth() == thisMonth);
+    setSuccessfulPair(successArray);
   }
 
   async function storeSuccessfulPairing(mergeObject) {
@@ -70,7 +91,7 @@ export default function JobListScreen({ navigation }) {
         await AsyncStorage.setItem("SuccessfulPaired", JSON.stringify(successfulArray));
         Alert.alert("您有新的工作配對")
       }
-    }else {
+    } else {
       successfulArray.push(mergeObject);
       await AsyncStorage.setItem("SuccessfulPaired", JSON.stringify(successfulArray));
       Alert.alert("您有新的工作配對")
@@ -79,7 +100,6 @@ export default function JobListScreen({ navigation }) {
 
   async function fetchJobsFromDB() {
     let tmpJobArray = [];
-    const memberInfo = await getEmployeeInfo();
     firestore().collection("jobs")
       .where("recruiting", "==", true)
       .where("startTime", ">", now)
@@ -92,7 +112,7 @@ export default function JobListScreen({ navigation }) {
           const mergeObject = Object.assign(jobObject, jobID);
           tmpJobArray.push(mergeObject)
           console.log("MergeObject", mergeObject)
-          if (mergeObject.recruitedMembers.length > 0) {
+          if (mergeObject.confirmed && mergeObject.recruitedMembers.length == 1) {
             if (mergeObject.recruitedMembers[0].email == memberInfo.email) {
               storeSuccessfulPairing(mergeObject);
             }
@@ -124,7 +144,6 @@ export default function JobListScreen({ navigation }) {
   }
 
   async function fetchCurrency() {
-    const memberInfo = await getEmployeeInfo();
     const ref = rankFirebaseLocation(memberInfo.rank);
     firestore().collection("variables").doc(ref).get()
       .then(async (doc) => {
@@ -134,14 +153,22 @@ export default function JobListScreen({ navigation }) {
       })
   }
 
+  React.useEffect(async()=>{
+    await getEmployeeInfo();
+  },[])
+
   React.useEffect(() => {
     fetchJobsFromDB();
     fetchCurrency();
-  }, [])
+    loadSuccessfulPair();
+  }, [memberInfo])
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchJobsFromDB();
+      setFilterStartDate(new Date(now.getFullYear(), now.getMonth(), 1));
+      setFilterEndDate(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+
     });
     return unsubscribe;
   }, [navigation]);
@@ -152,7 +179,7 @@ export default function JobListScreen({ navigation }) {
     switchIsExpandingPicker(false);
     switch (region) {
       case "所有地區":
-        setFilteredJobArray([...tmpFetchedJobArray]);
+        setFilteredJobArray([...fetchJobArray]);
         break;
       case "九龍":
         setFilteredJobArray([...tmpFetchedJobArray.filter(job => job.institutionRegion == "Kowloon")]);
@@ -166,14 +193,14 @@ export default function JobListScreen({ navigation }) {
     }
   }
 
-  function filterJobByStartTime(date){
+  function filterJobByStartTime(date) {
     var tmpFetchedJobArray = filteredJobArray;
-    setFilteredJobArray([...tmpFetchedJobArray.filter(job=>new Date(job.startTime.seconds*1000).getTime()>date.getTime())])
+    setFilteredJobArray([...tmpFetchedJobArray.filter(job => new Date(job.startTime.seconds * 1000).getTime() > date.getTime())])
   }
 
-  function filterJobByEndTime(date){
+  function filterJobByEndTime(date) {
     var tmpFetchedJobArray = filteredJobArray;
-    setFilteredJobArray([...tmpFetchedJobArray.filter(job=>new Date(job.endTime.seconds*1000).getTime()<date.getTime())])
+    setFilteredJobArray([...tmpFetchedJobArray.filter(job => new Date(job.endTime.seconds * 1000).getTime() < date.getTime())])
   }
 
   renderItem = ({ item }) => {
@@ -218,38 +245,74 @@ export default function JobListScreen({ navigation }) {
           </ScrollView>
         </View>
       ) : null}
-      <View style={{flexDirection:"row", justifyContent:"center", marginTop:20}}>
-      {filterStartDate?
-      <View style={{width:"30%"}}>
-      <DateTimePicker
-          testID="dateTimePicker"
-          value={filterStartDate}
-          mode="date"
-          is24Hour={true}
-          display="default"
-          onChange={onChangeStartDate}
-        /></View>:null}
-      <Text style={{color:"white", alignSelf:"center", margin:10, fontSize:15}}>至</Text>
-      {filterEndDate?
-      <View style={{width:"30%"}}>
-      <DateTimePicker
-          testID="dateTimePicker"
-          value={filterEndDate}
-          mode="date"
-          is24Hour={true}
-          display="default"
-          onChange={onChangeEndDate}
-        /></View>:null}
+      <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 20 }}>
+        {filterStartDate && Platform.OS == "ios" ?
+          <View style={{ width: "30%" }}>
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={filterStartDate}
+              mode="date"
+              is24Hour={true}
+              display="default"
+              onChange={onChangeStartDate}
+            /></View> :
+          <TouchableOpacity onPress={() => { switchSelectingFilterStart(true) }}>
+            <Text>{filterStartDate.getMonth() + 1}月{filterStartDate.getDate()}日</Text>
+          </TouchableOpacity>}
+        {selectFilterStart ?
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={filterStartDate}
+            mode="date"
+            is24Hour={true}
+            display="default"
+            onChange={onChangeStartDate}
+          /> : null}
+        <Text style={{ color: "white", alignSelf: "center", margin: 10, fontSize: 15 }}>至</Text>
+        {filterEndDate && Platform.OS == "ios" ?
+          <View style={{ width: "30%" }}>
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={filterEndDate}
+              mode="date"
+              is24Hour={true}
+              display="default"
+              onChange={onChangeEndDate}
+            /></View> : <TouchableOpacity onPress={() => { switchSelectingFilterEnd(true) }}>
+            <Text>{filterEndDate.getMonth() + 1}月{filterEndDate.getDate()}日</Text>
+          </TouchableOpacity>}
+        {selectFilterEnd ?
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={filterEndDate}
+            mode="date"
+            is24Hour={true}
+            display="default"
+            onChange={onChangeEndDate}
+          /> : null}
       </View>
-      <View style={styles.flatListContainer}>
-        <FlatList
-          renderItem={renderItem}
-          data={filteredJobArray}
-          ListEmptyComponent={
-            <Text style={styles.emptyListText}>您選擇的地區/時間未有工作招聘</Text>
-          }
-        />
-      </View>
+      <ScrollView>
+        <Text style={{ fontFamily: "SF-Pro-Text-Bold", fontSize: 25, marginLeft: 10, marginTop: 10, color: "black" }}>我已獲聘的工作</Text>
+        <View style={styles.confirmedFlatListContainer}>
+          <FlatList
+            renderItem={renderItem}
+            data={successfulPair}
+            ListEmptyComponent={
+              <Text style={styles.emptyListText}>您未有已獲聘的工作</Text>
+            }
+          />
+        </View>
+        <Text style={{ fontFamily: "SF-Pro-Text-Bold", fontSize: 25, marginLeft: 10, marginTop: 10, color: "black" }}>可申請的工作</Text>
+        <View style={styles.flatListContainer}>
+          <FlatList
+            renderItem={renderItem}
+            data={filteredJobArray}
+            ListEmptyComponent={
+              <Text style={styles.emptyListText}>您選擇的地區/時間未有工作招聘</Text>
+            }
+          />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -299,14 +362,22 @@ const styles = StyleSheet.create({
   optionContainer: {
     flex: 1,
     margin: 10,
-    width: "100%"
+    width: "100%",
   },
   optionText: {
     fontFamily: "SF-Pro-Text-Regular",
   },
   flatListContainer: {
-    width: "100%",
-    height: "80%",
+    width: "95%",
+    height: height * 0.6,
+    alignSelf: "center",
+    backgroundColor: "white",
+    margin: 20,
+    borderRadius: 10
+  },
+  confirmedFlatListContainer: {
+    width: "95%",
+    height: height * 0.2,
     alignSelf: "center",
     backgroundColor: "white",
     margin: 20,
@@ -324,9 +395,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.3,
     padding: 15,
     alignItems: "center",
-    width:"90%",
-    alignSelf:"center",
-    height:150
+    width: "90%",
+    alignSelf: "center",
+    height: 150
   },
   infoColumn: {
     marginLeft: 25

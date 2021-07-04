@@ -135,7 +135,9 @@ export default function JobApplicationScreen({ route, navigation }) {
   return (
     <View style={styles.screenContainer}>
       {salaryRef && memberInfo?
+      <View>
       <ImageBackground source={backgroundImage} style={styles.image}>
+      </ImageBackground>
         <SafeAreaView style={styles.container}>
           <View style={styles.infoRow}>
             <View style={styles.infoLabel}>
@@ -218,7 +220,7 @@ export default function JobApplicationScreen({ route, navigation }) {
               <Text style={styles.infoLabelText}>備註</Text>
             </View>
             <View style={styles.infoLabelLong}>
-              <Text style={styles.infoText}></Text>
+              <Text adjustsFontSizeToFit={true} style={styles.infoText}>{jobInfo.remarks}</Text>
             </View>
           </View>
         </SafeAreaView>
@@ -242,7 +244,7 @@ export default function JobApplicationScreen({ route, navigation }) {
           </TouchableOpacity>
         )}
         <Text style={styles.referenceText}>招聘編號:{jobInfo.jobID}</Text>
-      </ImageBackground>
+        </View>
       :null}
     </View>
   );
@@ -254,19 +256,15 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
   },
-  imageContainer: {
-    height: "100%",
-    width: "100%",
-  },
   image: {
     width: "100%",
-    height: "100%",
+    height: height*0.15,
     resizeMode: "contain",
-    opacity: 0.95,
+
   },
   container: {
-    height: "80%%",
-    marginBottom: height * 0.1,
+    height: height*0.55,
+    marginBottom:height*0.03
   },
   infoRow: {
     flex: 1,
@@ -274,13 +272,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   infoLabel: {
-    backgroundColor: "#552583",
+    backgroundColor: "white",
     height: "60%",
     width: "20%",
-    padding:5
+    padding:5,
   },
   infoLabelLong: {
-    backgroundColor: "white",
+    backgroundColor: "#552583",
     height: "60%",
     width: "70%",
     alignItems: "center",
@@ -294,12 +292,12 @@ const styles = StyleSheet.create({
   infoLabelText: {
     fontFamily: "SF-Pro-Text-Bold",
     alignSelf: "center",
-    color: "white",
     fontSize: 16,
   },
   infoText: {
     fontFamily: "SF-Pro-Text-Bold",
     fontSize: 20,
+    color:"white"
   },
   applyButton: {
     backgroundColor: "#0000ff",

@@ -131,7 +131,6 @@ export default function RegisterScreen({ navigation }) {
       lastNCovid: new Date(),
       covidResult: "Negative"
     };
-
     await firestore()
       .collection("members")
       .add(memberInfo)

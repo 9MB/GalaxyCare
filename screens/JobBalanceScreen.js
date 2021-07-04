@@ -6,12 +6,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 
 const calendarImage = require("../assets/images/registerImage.png");
-var sum = 0;
 
 export default function JobBalanceScreen() {
+  var sum = 0;
   const [memberInfo, setMemberInfo] = React.useState();
   const [balance, setBalance] = React.useState();
   const [salarySheet, setSalarySheet] = React.useState();
+  const [calculated, loadCalculated] = React.useState(0);
   const signout = () => {
     auth().signOut();
   }
@@ -64,6 +65,11 @@ export default function JobBalanceScreen() {
     loadSuccessfulPair();
     fetchCurrency();
   }, [])
+
+  React.useEffect(()=>{
+    loadCalculated(sum);
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.staffCard}>
@@ -84,13 +90,14 @@ export default function JobBalanceScreen() {
         {balance && salarySheet?
         <View>
         <FlatList
+          style={styles.flatlist}
           renderItem={renderItem}
           data={balance}
           ListEmptyComponent={
             <Text style={styles.emptyListText}>本月未有已成功配對的工作</Text>
           }
         />
-        <Text>本月資薪: {sum}</Text>
+        <Text style={styles.sum}>總計: {calculated}</Text>
         </View>:null}
       </View>
       <Button onPress={() => signout()} title="登出" color="#841584" />
@@ -195,5 +202,13 @@ const styles = StyleSheet.create({
   salaryText:{
     fontFamily:"SF-Pro-Text-Bold",
     marginLeft:"auto"
+  },
+  sum:{
+    alignSelf:"flex-end",
+    fontFamily:"SF-Pro-Text-Bold",
+    fontSize:25,
+  },
+  flatlist:{
+    height:"75%"
   }
 })

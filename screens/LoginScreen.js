@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const backgroundImage = require("../assets/images/LoginBackground_GalaxyCare.jpg");
 
@@ -43,17 +44,6 @@ export default function LoginScreen({ navigation }) {
         }
       });
   };
-
-  const getUserFromFirestore = async() =>{
-    await firestore().collection("members")
-    .where('email','==',email)
-    .get()
-    .then(querySnapshot=>{
-      if(!querySnapshot.empty){
-        console.log("User Actived?", querySnapshot.docs[0].data().activated);
-      }
-    })
-  }
   return (
     <View style={styles.container}>
       <ImageBackground source={backgroundImage} style={styles.image}>

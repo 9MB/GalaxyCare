@@ -385,7 +385,7 @@ export default function JobCalendarScreen({ route, navigation }) {
             </TouchableOpacity>
           )
         })}
-        <Text style={styles.deleteHints}>長按以刪除事項</Text>
+        <Text style={styles.deleteHints}>長按以刪除事項，已獲確認的申請請聯絡星玥取消</Text>
       </View>:null}
     </SafeAreaView>
   );

@@ -101,6 +101,7 @@ export default function StickerCreatingScreen({navigation}) {
       behavior="padding"
       style={styles.keyboardingAvoidingView}
     >
+      <View style={styles.previewContainer}>
       <View style={styles.stickerPreviewCircle}>
         <View style={styles.stickerHead}>
           <Text style={styles.stickerTitle} adjustsFontSizeToFit={true}>
@@ -112,6 +113,7 @@ export default function StickerCreatingScreen({navigation}) {
         <Text style={styles.stickerTime} adjustsFontSizeToFit={true}>-</Text>
         <Text style={styles.stickerTime} adjustsFontSizeToFit={true}>{eventBuildingEndingHour}:{eventBuildingEndingMinutes}</Text>
         </View>
+      </View>
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.instructText}>工作標示:</Text>
@@ -195,7 +197,7 @@ export default function StickerCreatingScreen({navigation}) {
           }}
         ></TextInput>
       </View>
-      <Button title="儲存" onPress={()=>isValidSticker()} />
+      <Button title="建立事項貼圖" onPress={()=>isValidSticker()} />
     </KeyboardAvoidingView>
   );
 }
@@ -259,4 +261,8 @@ const styles = StyleSheet.create({
     height: height * 0.08,
     padding: 10,
   },
+  previewContainer:{
+    backgroundColor:"#212124",
+    height:"30%"
+  }
 });
