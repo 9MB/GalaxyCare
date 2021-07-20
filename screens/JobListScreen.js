@@ -45,7 +45,7 @@ export default function JobListScreen({ navigation }) {
     setShow(Platform.OS === 'ios');
     setFilterStartDate(currentDate);
     filterJobByStartTime(currentDate);
-    
+
   };
 
   const onChangeEndDate = async (event, selectedDate) => {
@@ -153,9 +153,9 @@ export default function JobListScreen({ navigation }) {
       })
   }
 
-  React.useEffect(async()=>{
+  React.useEffect(async () => {
     await getEmployeeInfo();
-  },[])
+  }, [])
 
   React.useEffect(() => {
     fetchJobsFromDB();
@@ -212,7 +212,7 @@ export default function JobListScreen({ navigation }) {
           <Text style={styles.jobTime}>{new Date(item.startTime.seconds * 1000).getMonth() + 1}月{new Date(item.startTime.seconds * 1000).getDate()}日{new Date(item.startTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getHours() : new Date(item.startTime.seconds * 1000).getHours()}:{new Date(item.startTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getMinutes() : new Date(item.startTime.seconds * 1000).getMinutes()}-{new Date(item.endTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getHours() : new Date(item.endTime.seconds * 1000).getHours()}:{new Date(item.endTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getMinutes() : new Date(item.endTime.seconds * 1000).getMinutes()}</Text>
         </View>
         <View style={styles.regionBox}>
-          <Text style={styles.regionText}>{item.institutionRegion.slice(0, 3)}</Text>
+          <Text style={styles.regionText}>{item.institutionRegion=="Kowloon"?"九龍":item.institutionRegion=="New Territories"?"新界":"港島"}</Text>
         </View>
         <View style={styles.statusBox}>
           <Text style={styles.regionText}>{item.recruitedMembers.filter(member => member.email == auth().currentUser.email).length > 0 ? "已獲聘" : item.appliedMembers.filter(member => member.email == auth().currentUser.email).length > 0 ? "已申請" : "未申請"}</Text>

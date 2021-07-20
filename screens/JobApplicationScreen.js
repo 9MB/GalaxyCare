@@ -60,7 +60,7 @@ export default function JobApplicationScreen({ route, navigation }) {
               })
               .then(async() => {
                 Alert.alert(
-                  "申請成功!請等候院社進行確認，您可在工作日歷檢查配對進度。"
+                  "申請成功!請等候院舍進行確認，您可在工作日歷檢查配對進度。"
                 );
                 const jsonValue = JSON.stringify(jobInfo)
                 await AsyncStorage.setItem("PendingAddEvent", jsonValue);
@@ -98,7 +98,7 @@ export default function JobApplicationScreen({ route, navigation }) {
           );
         if (memberItemFromRecruitedMembers.length > 0) {
           Alert.alert(
-            "院社已確認您的申請，如要取消請Whatsapp/致電我們的客戶服務熱線94453331"
+            "院舍已確認您的申請，如要取消請Whatsapp/致電我們的客戶服務熱線94453331"
           );
         } else {
           firestore().collection("jobs").doc(jobInfo.jobID)
@@ -141,7 +141,7 @@ export default function JobApplicationScreen({ route, navigation }) {
         <SafeAreaView style={styles.container}>
           <View style={styles.infoRow}>
             <View style={styles.infoLabel}>
-              <Text style={styles.infoLabelText}>院社名稱</Text>
+              <Text style={styles.infoLabelText}>院舍名稱</Text>
             </View>
             <View style={styles.infoLabelLong}>
               <Text style={styles.infoText}>{jobInfo.institutionName}</Text>
@@ -149,7 +149,7 @@ export default function JobApplicationScreen({ route, navigation }) {
           </View>
           <View style={styles.infoRow}>
             <View style={styles.infoLabel}>
-              <Text style={styles.infoLabelText}>院社地址</Text>
+              <Text style={styles.infoLabelText}>院舍地址</Text>
             </View>
             <View style={styles.infoLabelLong}>
               <Text style={styles.infoText}>{jobInfo.address}</Text>
