@@ -28,7 +28,7 @@ const AppTab = createBottomTabNavigator();
 function Calendar() {
   return (
     <CalendarStack.Navigator initialRouteName="工作日歷">
-      <CalendarStack.Screen name="工作日歷" component={JobCalendarScreen} options={{ headerShown: false }}/>
+      <CalendarStack.Screen name="工作日歷" component={JobCalendarScreen} options={{ headerShown: false }} />
       <CalendarStack.Screen name="新增常用事項" component={StickerCreatingScreen} options={{ headerStyle: { backgroundColor: "#ffcc00" }, headerTintColor: "white" }} />
     </CalendarStack.Navigator>
   )
@@ -50,18 +50,20 @@ export default function App() {
   const [user, setUser] = React.useState();
 
   // Handle user state changes
-  async function onAuthStateChanged(user) {
-    setUser(user);
-    await getEmployeeInfo(user);
+  
+  function onAuthStateChanged(onAuthChange) {
+      setUser(onAuthChange);
+      getEmployeeInfo(onAuthChange);
     if (initializing) setInitializing(false);
   }
+  
 
   async function getEmployeeInfo() {
     await firestore().collection("members")
       .where("email", "==", user.email)
       .get()
       .then(querySnapshot => {
-        querySnapshot.forEach(async(doc) => {
+        querySnapshot.forEach(async (doc) => {
           const tmpMemberInfo = doc.data();
           console.log("Doc.data", doc.data())
           const jsonValue = JSON.stringify(tmpMemberInfo);
@@ -99,8 +101,10 @@ export default function App() {
   }
 
   React.useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
+    (async () => {
+      const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+      return subscriber; // unsubscribe on unmount
+    })();
   }, []);
 
 
@@ -123,7 +127,7 @@ export default function App() {
           <AppTab.Screen name="我的月結單" component={JobBalanceScreen} />
         </AppTab.Navigator>
       ) : (
-        <LoginStack.Navigator initialRouteName="Login">
+        <LoginStack.Navigator initialRouteName="登入">
           <LoginStack.Screen
             name="登入"
             component={LoginScreen}

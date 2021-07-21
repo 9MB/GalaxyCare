@@ -7,15 +7,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 const calendarImage = require("../assets/images/registerImage.png");
 
-export default function JobBalanceScreen() {
+export default function JobBalanceScreen({ navigation }) {
   var sum = 0;
   const [memberInfo, setMemberInfo] = React.useState();
   const [balance, setBalance] = React.useState();
   const [salarySheet, setSalarySheet] = React.useState();
   const [calculated, loadCalculated] = React.useState(0);
-  const signout = () => {
-    auth().signOut();
-  }
+
 
   async function getEmployeeInfo() {
     const jsonValue = await AsyncStorage.getItem("MemberInfoLocal");
@@ -29,17 +27,17 @@ export default function JobBalanceScreen() {
     const thisMonth = new Date().getMonth();
     const jsonValue = await AsyncStorage.getItem("SuccessfulPaired");
     const successArray = jsonValue != null ? JSON.parse(jsonValue) : [];
-    const filteredArray = successArray.filter(job=>new Date(job.startTime.seconds*1000).getMonth() == thisMonth);
+    const filteredArray = successArray.filter(job => new Date(job.startTime.seconds * 1000).getMonth() == thisMonth);
     setBalance(successArray);
   }
 
   async function fetchCurrency() {
     const jsonValue = await AsyncStorage.getItem("SalaryRef");
-    const salaryRef = jsonValue != null ? JSON.parse(jsonValue): undefined;
+    const salaryRef = jsonValue != null ? JSON.parse(jsonValue) : undefined;
     setSalarySheet(salaryRef);
   }
 
-  function calculateSalary(hours){
+  function calculateSalary(hours) {
     sum += parseInt(salarySheet[hours]);
     return salarySheet[hours];
   }
@@ -53,9 +51,9 @@ export default function JobBalanceScreen() {
           <Text style={styles.jobTime}>{new Date(item.startTime.seconds * 1000).getMonth() + 1}月{new Date(item.startTime.seconds * 1000).getDate()}日{new Date(item.startTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getHours() : new Date(item.startTime.seconds * 1000).getHours()}:{new Date(item.startTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.startTime.seconds * 1000).getMinutes() : new Date(item.startTime.seconds * 1000).getMinutes()}-{new Date(item.endTime.seconds * 1000).getHours() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getHours() : new Date(item.endTime.seconds * 1000).getHours()}:{new Date(item.endTime.seconds * 1000).getMinutes() < 10 ? '0' + new Date(item.endTime.seconds * 1000).getMinutes() : new Date(item.endTime.seconds * 1000).getMinutes()}</Text>
         </View>
         <Text style={styles.salaryText}> {calculateSalary(Math.ceil(
-                  (new Date(item.endTime.seconds * 1000).getTime() -
-                    new Date(item.startTime.seconds * 1000).getTime())
-                 / 36e5))} 港元</Text>
+          (new Date(item.endTime.seconds * 1000).getTime() -
+            new Date(item.startTime.seconds * 1000).getTime())
+          / 36e5))} 港元</Text>
       </TouchableOpacity>
     )
   }
@@ -66,7 +64,7 @@ export default function JobBalanceScreen() {
     fetchCurrency();
   }, [])
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     loadCalculated(sum);
   });
 
@@ -87,20 +85,19 @@ export default function JobBalanceScreen() {
       </View>
       <View style={styles.balanceSheet}>
         <Text style={styles.rankTitle}>本月預期資薪</Text>
-        {balance && salarySheet?
-        <View>
-        <FlatList
-          style={styles.flatlist}
-          renderItem={renderItem}
-          data={balance}
-          ListEmptyComponent={
-            <Text style={styles.emptyListText}>本月未有已成功配對的工作</Text>
-          }
-        />
-        <Text style={styles.sum}>總計: {calculated}</Text>
-        </View>:null}
+        {balance && salarySheet ?
+          <View>
+            <FlatList
+              style={styles.flatlist}
+              renderItem={renderItem}
+              data={balance}
+              ListEmptyComponent={
+                <Text style={styles.emptyListText}>本月未有已成功配對的工作</Text>
+              }
+            />
+            <Text style={styles.sum}>總計: {calculated}</Text>
+          </View> : null}
       </View>
-      <Button onPress={() => signout()} title="登出" color="#841584" />
     </SafeAreaView>
   );
 }
@@ -199,16 +196,16 @@ const styles = StyleSheet.create({
     color: "white",
     alignSelf: "center"
   },
-  salaryText:{
-    fontFamily:"SF-Pro-Text-Bold",
-    marginLeft:"auto"
+  salaryText: {
+    fontFamily: "SF-Pro-Text-Bold",
+    marginLeft: "auto"
   },
-  sum:{
-    alignSelf:"flex-end",
-    fontFamily:"SF-Pro-Text-Bold",
-    fontSize:25,
+  sum: {
+    alignSelf: "flex-end",
+    fontFamily: "SF-Pro-Text-Bold",
+    fontSize: 25,
   },
-  flatlist:{
-    height:"75%"
+  flatlist: {
+    height: "75%"
   }
 })
