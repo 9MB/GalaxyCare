@@ -89,7 +89,7 @@ export default function JobApplicationScreen({ route, navigation }) {
           .appliedMembers.filter(
             (member) => member.email == auth().currentUser.email
           );
-        if (memberItemFromRecruitedMembers.length > 0 && doc.data().confirmed) {
+        if (memberItemFromAppliedMembers.length > 0 && doc.data().confirmed) {
           Alert.alert(
             "院舍已確認您的申請，如要取消請Whatsapp/致電我們的客戶服務熱線94453331"
           );
@@ -102,7 +102,7 @@ export default function JobApplicationScreen({ route, navigation }) {
                 memberItemFromAppliedMembers[0]
               ),
             })
-            .then(() => {
+            .then(async() => {
               Alert.alert("已取消申請");
               const jsonValue = JSON.stringify(doc.data());
               await AsyncStorage.setItem("PendingCancelEvent", jsonValue);

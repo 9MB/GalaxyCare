@@ -71,10 +71,8 @@ export default function JobListScreen({ navigation }) {
   }
 
   async function loadSuccessfulPair() {
-    const thisMonth = new Date().getMonth();
     const jsonValue = await AsyncStorage.getItem("SuccessfulPaired");
     const successArray = jsonValue != null ? JSON.parse(jsonValue) : [];
-    const filteredArray = successArray.filter(job => new Date(job.startTime.seconds * 1000).getMonth() == thisMonth);
     setSuccessfulPair(successArray);
   }
 
@@ -99,11 +97,13 @@ export default function JobListScreen({ navigation }) {
   }
 
   async function fetchJobsFromDB() {
+    const jsonInfo = await AsyncStorage.getItem("MemberInfoLocal");
+    const info = jsonInfo != null ? JSON.parse(jsonInfo) : undefined;
     let tmpJobArray = [];
     firestore().collection("jobs")
       .where("recruiting", "==", true)
       .where("startTime", ">", now)
-      .where("rank", "==", memberInfo.rank)
+      .where("rank", "==", info.rank)
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(async (doc) => {
@@ -112,7 +112,7 @@ export default function JobListScreen({ navigation }) {
           const mergeObject = Object.assign(jobObject, jobID);
           tmpJobArray.push(mergeObject)
           if (mergeObject.confirmed && mergeObject.appliedMembers.length == 1) {
-            if (mergeObject.appliedMembers[0].email == memberInfo.email) {
+            if (mergeObject.appliedMembers[0].email == info.email) {
               storeSuccessfulPairing(mergeObject);
             }
           }
@@ -163,6 +163,13 @@ export default function JobListScreen({ navigation }) {
     loadSuccessfulPair();
     }
   }, [memberInfo])
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async() => {
+      await getEmployeeInfo();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
