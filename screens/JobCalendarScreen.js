@@ -245,6 +245,9 @@ export default function JobCalendarScreen({ route, navigation }) {
           console.log("Error", e)
         })
       }
+      if(pendingCancelJob != null){
+        const eventToBeCancel = appliedJob.filter(eventObject=>eventObject.eventTime == pendingCancelJob.startTime)[0];
+      }
     });
     return unsubscribe;
   }, [navigation]);
