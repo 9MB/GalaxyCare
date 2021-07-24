@@ -63,7 +63,7 @@ export default function JobListScreen({ navigation }) {
       .then(querySnapshot => {
         querySnapshot.forEach(async (doc) => {
           const member = doc.data();
-          console.log("Getting MemberInfo On Login", member)
+          console.log("Getting MemberInfo On Login", member.rank)
           await AsyncStorage.setItem("MemberInfoLocal", JSON.stringify(member));
           setMemberInfo(member);
         })
@@ -111,9 +111,8 @@ export default function JobListScreen({ navigation }) {
           const jobID = { jobID: doc.id };
           const mergeObject = Object.assign(jobObject, jobID);
           tmpJobArray.push(mergeObject)
-          console.log("MergeObject", mergeObject)
-          if (mergeObject.confirmed && mergeObject.recruitedMembers.length == 1) {
-            if (mergeObject.recruitedMembers[0].email == memberInfo.email) {
+          if (mergeObject.confirmed && mergeObject.appliedMembers.length == 1) {
+            if (mergeObject.appliedMembers[0].email == memberInfo.email) {
               storeSuccessfulPairing(mergeObject);
             }
           }
@@ -158,9 +157,11 @@ export default function JobListScreen({ navigation }) {
   }, [])
 
   React.useEffect(() => {
+    if(memberInfo){
     fetchJobsFromDB();
     fetchCurrency();
     loadSuccessfulPair();
+    }
   }, [memberInfo])
 
   React.useEffect(() => {
@@ -215,7 +216,7 @@ export default function JobListScreen({ navigation }) {
           <Text style={styles.regionText}>{item.institutionRegion=="Kowloon"?"九龍":item.institutionRegion=="New Territories"?"新界":"港島"}</Text>
         </View>
         <View style={styles.statusBox}>
-          <Text style={styles.regionText}>{item.recruitedMembers.filter(member => member.email == auth().currentUser.email).length > 0 ? "已獲聘" : item.appliedMembers.filter(member => member.email == auth().currentUser.email).length > 0 ? "已申請" : "未申請"}</Text>
+          <Text style={styles.regionText}>{item.appliedMembers.filter(member => member.email == auth().currentUser.email).length > 0 && item.confirmed ? "已獲聘" : item.appliedMembers.filter(member => member.email == auth().currentUser.email).length > 0 ? "已申請" : "未申請"}</Text>
         </View>
       </TouchableOpacity>
     )

@@ -16,7 +16,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const backgroundImage = require("../assets/images/applicationBackground.jpg");
 
-
 export default function JobApplicationScreen({ route, navigation }) {
   const { jobInfo } = route.params;
   const [salaryRef, setSalaryRef] = React.useState();
@@ -28,14 +27,14 @@ export default function JobApplicationScreen({ route, navigation }) {
       ? true
       : false;
   const recruitedStatus =
-    jobInfo.recruitedMembers.filter(
+    jobInfo.appliedMembers.filter(
       (member) => member.email == auth().currentUser.email
-    ).length > 0
+    ).length > 0 && jobInfo.confirmed
       ? true
       : false;
 
   async function applyJob() {
-    console.log("memberInfo", memberInfo)
+    console.log("memberInfo", memberInfo);
     firestore()
       .collection("jobs")
       .doc(jobInfo.jobID)
@@ -55,14 +54,13 @@ export default function JobApplicationScreen({ route, navigation }) {
               .collection("jobs")
               .doc(jobInfo.jobID)
               .update({
-                appliedMembers:
-                  firestore.FieldValue.arrayUnion(memberInfo),
+                appliedMembers: firestore.FieldValue.arrayUnion(memberInfo),
               })
-              .then(async() => {
+              .then(async () => {
                 Alert.alert(
                   "申請成功!請等候院舍進行確認，您可在工作日歷檢查配對進度。"
                 );
-                const jsonValue = JSON.stringify(jobInfo)
+                const jsonValue = JSON.stringify(jobInfo);
                 await AsyncStorage.setItem("PendingAddEvent", jsonValue);
                 navigation.popToTop();
                 navigation.navigate("工作日歷");
@@ -91,27 +89,31 @@ export default function JobApplicationScreen({ route, navigation }) {
           .appliedMembers.filter(
             (member) => member.email == auth().currentUser.email
           );
-        const memberItemFromRecruitedMembers = doc
-          .data()
-          .recruitedMembers.filter(
-            (member) => member.email == auth().currentUser.email
-          );
-        if (memberItemFromRecruitedMembers.length > 0) {
+        if (memberItemFromRecruitedMembers.length > 0 && doc.data().confirmed) {
           Alert.alert(
             "院舍已確認您的申請，如要取消請Whatsapp/致電我們的客戶服務熱線94453331"
           );
         } else {
-          firestore().collection("jobs").doc(jobInfo.jobID)
-          .update({appliedMembers:firestore.FieldValue.arrayRemove(memberItemFromAppliedMembers[0])})
-          .then(()=>{
-            Alert.alert("已取消申請");
-            navigation.navigate("報更")
-          })
+          firestore()
+            .collection("jobs")
+            .doc(jobInfo.jobID)
+            .update({
+              appliedMembers: firestore.FieldValue.arrayRemove(
+                memberItemFromAppliedMembers[0]
+              ),
+            })
+            .then(() => {
+              Alert.alert("已取消申請");
+              const jsonValue = JSON.stringify(doc.data());
+              await AsyncStorage.setItem("PendingCancelEvent", jsonValue);
+              navigation.popToTop();
+              navigation.navigate("工作日歷");
+            });
         }
       });
   }
 
-  function calculateSalary(hours){
+  function calculateSalary(hours) {
     return salaryRef[hours];
   }
 
@@ -126,7 +128,6 @@ export default function JobApplicationScreen({ route, navigation }) {
       if (jsonSalary !== null) {
         const salaryChart = JSON.parse(jsonSalary);
         setSalaryRef(salaryChart);
-        
       }
     }
     getEmployeeInfo();
@@ -134,118 +135,132 @@ export default function JobApplicationScreen({ route, navigation }) {
 
   return (
     <View style={styles.screenContainer}>
-      {salaryRef && memberInfo?
-      <View>
-      <ImageBackground source={backgroundImage} style={styles.image}>
-      </ImageBackground>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.infoRow}>
-            <View style={styles.infoLabel}>
-              <Text style={styles.infoLabelText}>院舍名稱</Text>
+      {salaryRef && memberInfo ? (
+        <View>
+          <ImageBackground
+            source={backgroundImage}
+            style={styles.image}
+          ></ImageBackground>
+          <SafeAreaView style={styles.container}>
+            <View style={styles.infoRow}>
+              <View style={styles.infoLabel}>
+                <Text style={styles.infoLabelText}>院舍名稱</Text>
+              </View>
+              <View style={styles.infoLabelLong}>
+                <Text style={styles.infoText}>{jobInfo.institutionName}</Text>
+              </View>
             </View>
-            <View style={styles.infoLabelLong}>
-              <Text style={styles.infoText}>{jobInfo.institutionName}</Text>
+            <View style={styles.infoRow}>
+              <View style={styles.infoLabel}>
+                <Text style={styles.infoLabelText}>院舍地址</Text>
+              </View>
+              <View style={styles.infoLabelLong}>
+                <Text style={styles.infoText}>{jobInfo.address}</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.infoRow}>
-            <View style={styles.infoLabel}>
-              <Text style={styles.infoLabelText}>院舍地址</Text>
+            <View style={styles.infoRow}>
+              <View style={styles.infoLabel}>
+                <Text style={styles.infoLabelText}>工作時間</Text>
+              </View>
+              <View style={styles.infoLabelLong}>
+                <Text style={styles.infoText}>
+                  {new Date(jobInfo.startTime.seconds * 1000).getMonth() + 1}月
+                  {new Date(jobInfo.startTime.seconds * 1000).getDate()}日
+                  {new Date(jobInfo.startTime.seconds * 1000).getHours() < 10
+                    ? "0" +
+                      new Date(jobInfo.startTime.seconds * 1000).getHours()
+                    : new Date(jobInfo.startTime.seconds * 1000).getHours()}
+                  :
+                  {new Date(jobInfo.startTime.seconds * 1000).getMinutes() < 10
+                    ? "0" +
+                      new Date(jobInfo.startTime.seconds * 1000).getMinutes()
+                    : new Date(jobInfo.startTime.seconds * 1000).getMinutes()}
+                  -
+                  {new Date(jobInfo.endTime.seconds * 1000).getHours() < 10
+                    ? "0" + new Date(jobInfo.endTime.seconds * 1000).getHours()
+                    : new Date(jobInfo.endTime.seconds * 1000).getHours()}
+                  :
+                  {new Date(jobInfo.endTime.seconds * 1000).getMinutes() < 10
+                    ? "0" +
+                      new Date(jobInfo.endTime.seconds * 1000).getMinutes()
+                    : new Date(jobInfo.endTime.seconds * 1000).getMinutes()}
+                </Text>
+              </View>
             </View>
-            <View style={styles.infoLabelLong}>
-              <Text style={styles.infoText}>{jobInfo.address}</Text>
+            <View style={styles.infoRow}>
+              <View style={styles.infoLabel}>
+                <Text style={styles.infoLabelText}>時數</Text>
+              </View>
+              <View style={styles.infoLabelLong}>
+                <Text style={styles.infoText}>
+                  {Math.ceil(
+                    (new Date(jobInfo.endTime.seconds * 1000).getTime() -
+                      new Date(jobInfo.startTime.seconds * 1000).getTime()) /
+                      36e5
+                  )}{" "}
+                  小時
+                </Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.infoRow}>
-            <View style={styles.infoLabel}>
-              <Text style={styles.infoLabelText}>工作時間</Text>
+            <View style={styles.infoRow}>
+              <View style={styles.infoLabel}>
+                <Text style={styles.infoLabelText}>完成資薪</Text>
+              </View>
+              <View style={styles.infoLabelLong}>
+                <Text style={styles.infoText}>
+                  {" "}
+                  {calculateSalary(
+                    Math.ceil(
+                      (new Date(jobInfo.endTime.seconds * 1000).getTime() -
+                        new Date(jobInfo.startTime.seconds * 1000).getTime()) /
+                        36e5
+                    )
+                  )}{" "}
+                  港元
+                </Text>
+              </View>
             </View>
-            <View style={styles.infoLabelLong}>
-              <Text style={styles.infoText}>
-                {new Date(jobInfo.startTime.seconds * 1000).getMonth() + 1}月
-                {new Date(jobInfo.startTime.seconds * 1000).getDate()}日
-                {new Date(jobInfo.startTime.seconds * 1000).getHours() < 10
-                  ? "0" + new Date(jobInfo.startTime.seconds * 1000).getHours()
-                  : new Date(jobInfo.startTime.seconds * 1000).getHours()}
-                :
-                {new Date(jobInfo.startTime.seconds * 1000).getMinutes() < 10
-                  ? "0" +
-                    new Date(jobInfo.startTime.seconds * 1000).getMinutes()
-                  : new Date(jobInfo.startTime.seconds * 1000).getMinutes()}
-                -
-                {new Date(jobInfo.endTime.seconds * 1000).getHours() < 10
-                  ? "0" + new Date(jobInfo.endTime.seconds * 1000).getHours()
-                  : new Date(jobInfo.endTime.seconds * 1000).getHours()}
-                :
-                {new Date(jobInfo.endTime.seconds * 1000).getMinutes() < 10
-                  ? "0" + new Date(jobInfo.endTime.seconds * 1000).getMinutes()
-                  : new Date(jobInfo.endTime.seconds * 1000).getMinutes()}
-              </Text>
+            <View style={styles.infoRow}>
+              <View style={styles.infoLabel}>
+                <Text style={styles.infoLabelText}>聯絡電話</Text>
+              </View>
+              <View style={styles.infoLabelLong}>
+                <Text style={styles.infoText}>{jobInfo.institutionPhone}</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.infoRow}>
-            <View style={styles.infoLabel}>
-              <Text style={styles.infoLabelText}>時數</Text>
+            <View style={styles.infoRow}>
+              <View style={styles.infoLabel}>
+                <Text style={styles.infoLabelText}>備註</Text>
+              </View>
+              <View style={styles.infoLabelLong}>
+                <Text adjustsFontSizeToFit={true} style={styles.infoText}>
+                  {jobInfo.remarks}
+                </Text>
+              </View>
             </View>
-            <View style={styles.infoLabelLong}>
-              <Text style={styles.infoText}>
-                {Math.ceil(
-                  (new Date(jobInfo.endTime.seconds * 1000).getTime() -
-                    new Date(jobInfo.startTime.seconds * 1000).getTime())
-                 / 36e5)}{" "}
-                小時
-              </Text>
-            </View>
-          </View>
-          <View style={styles.infoRow}>
-            <View style={styles.infoLabel}>
-              <Text style={styles.infoLabelText}>完成資薪</Text>
-            </View>
-            <View style={styles.infoLabelLong}>
-              <Text style={styles.infoText}> {calculateSalary(Math.ceil(
-                  (new Date(jobInfo.endTime.seconds * 1000).getTime() -
-                    new Date(jobInfo.startTime.seconds * 1000).getTime())
-                 / 36e5))} 港元</Text>
-            </View>
-          </View>
-          <View style={styles.infoRow}>
-            <View style={styles.infoLabel}>
-              <Text style={styles.infoLabelText}>聯絡電話</Text>
-            </View>
-            <View style={styles.infoLabelLong}>
-              <Text style={styles.infoText}>{jobInfo.institutionPhone}</Text>
-            </View>
-          </View>
-          <View style={styles.infoRow}>
-            <View style={styles.infoLabel}>
-              <Text style={styles.infoLabelText}>備註</Text>
-            </View>
-            <View style={styles.infoLabelLong}>
-              <Text adjustsFontSizeToFit={true} style={styles.infoText}>{jobInfo.remarks}</Text>
-            </View>
-          </View>
-        </SafeAreaView>
-        {appliedStatus ? (
-          <TouchableOpacity
-            style={styles.cancelButton}
-            onPress={() => {
-              cancelJobApply();
-            }}
-          >
-            <Text style={styles.applyButtonText}>取消申請</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={styles.applyButton}
-            onPress={() => {
-              applyJob();
-            }}
-          >
-            <Text style={styles.applyButtonText}>立即申請</Text>
-          </TouchableOpacity>
-        )}
-        <Text style={styles.referenceText}>招聘編號:{jobInfo.jobID}</Text>
+          </SafeAreaView>
+          {appliedStatus ? (
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => {
+                cancelJobApply();
+              }}
+            >
+              <Text style={styles.applyButtonText}>取消申請</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={() => {
+                applyJob();
+              }}
+            >
+              <Text style={styles.applyButtonText}>立即申請</Text>
+            </TouchableOpacity>
+          )}
+          <Text style={styles.referenceText}>招聘編號:{jobInfo.jobID}</Text>
         </View>
-      :null}
+      ) : null}
     </View>
   );
 }
@@ -258,13 +273,12 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "100%",
-    height: height*0.15,
+    height: height * 0.15,
     resizeMode: "contain",
-
   },
   container: {
-    height: height*0.55,
-    marginBottom:height*0.03
+    height: height * 0.55,
+    marginBottom: height * 0.03,
   },
   infoRow: {
     flex: 1,
@@ -275,19 +289,19 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     height: "60%",
     width: "20%",
-    padding:5,
+    padding: 5,
   },
   infoLabelLong: {
     backgroundColor: "#552583",
     height: "60%",
     width: "70%",
     alignItems: "center",
-    padding:5
+    padding: 5,
   },
   referenceText: {
     marginTop: "auto",
     marginLeft: 5,
-    fontFamily:"SF-Pro-Rounded-Ultralight"
+    fontFamily: "SF-Pro-Rounded-Ultralight",
   },
   infoLabelText: {
     fontFamily: "SF-Pro-Text-Bold",
@@ -297,7 +311,7 @@ const styles = StyleSheet.create({
   infoText: {
     fontFamily: "SF-Pro-Text-Bold",
     fontSize: 20,
-    color:"white"
+    color: "white",
   },
   applyButton: {
     backgroundColor: "#0000ff",

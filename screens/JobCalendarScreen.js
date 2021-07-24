@@ -214,6 +214,10 @@ export default function JobCalendarScreen({ route, navigation }) {
       loadStickerArray();
       const jsonValue = await AsyncStorage.getItem("PendingAddEvent");
       const pendingAddJob = jsonValue? JSON.parse(jsonValue):null;
+      const jsonCancelJob = await AsyncStorage.getItem("PendingCancelEvent");
+      const pendingCancelJob = jsonCancelJob ? JSON.parse(jsonCancelJob):null;
+      const jsonAppliedJob = await AsyncStorage.getItem("AppliedJob");
+      let appliedJob = jsonAppliedJob? JSON.parse(jsonAppliedJob):[];
       if(pendingAddJob != null){
         const CalendarID = AppsCalendarID? AppsCalendarID:await loadAppsCalendarID();
         const details={
@@ -225,8 +229,16 @@ export default function JobCalendarScreen({ route, navigation }) {
           alarms:[{relativeOffset:-90}]
         };
         await Calendar.createEventAsync(CalendarID, details)
-        .then(async()=>{
+        .then(async(eventID)=>{
           await AsyncStorage.setItem("PendingAddEvent", "");
+          const timeToIDEventObject = {
+            eventTime: new Date(pendingAddJob.startTime.seconds*1000),
+            id: eventID
+          }
+          appliedJob.push(timeToIDEventObject);
+          const json = JSON.stringify(appliedJob);
+          console.log("json", json)
+          await AsyncStorage.setItem("AppliedJob", json);
           loadEventsArray();
         })
         .catch(e=>{
