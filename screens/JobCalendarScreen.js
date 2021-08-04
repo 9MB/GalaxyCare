@@ -581,15 +581,18 @@ const styles = StyleSheet.create({
   monthText: {
     fontSize: 25,
     margin: 10,
+    color:"black"
   },
   weekDayText: {
     flex: 1,
     fontFamily: "SF-Pro-Rounded-Ultralight",
+    color:"black"
   },
   calendarEventTitle: {
     fontFamily: "SF-Pro-Rounded-Black",
     fontSize: 12,
     textAlign: "center",
+    color:"black"
   },
   calendarEventTitleLowPriority: {
     fontFamily: "SF-Pro-Rounded-Ultralight",
@@ -631,9 +634,11 @@ const styles = StyleSheet.create({
   },
   dayText: {
     fontFamily: "SF-Pro-Text-Regular",
+    color:"black"
   },
   queryDayText: {
     fontFamily: "SF-Pro-Text-Bold",
+    color:"black"
   },
   eventPotContainer: {
     flex: 1,

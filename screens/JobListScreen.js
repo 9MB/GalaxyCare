@@ -265,7 +265,7 @@ export default function JobListScreen({ navigation }) {
               onChange={onChangeStartDate}
             /></View> :
           <TouchableOpacity onPress={() => { switchSelectingFilterStart(true) }}>
-            <Text>{filterStartDate.getMonth() + 1}月{filterStartDate.getDate()}日</Text>
+            <Text style={styles.datePickerAndroid}>{filterStartDate.getMonth() + 1}月{filterStartDate.getDate()}日</Text>
           </TouchableOpacity>}
         {selectFilterStart ?
           <DateTimePicker
@@ -287,7 +287,7 @@ export default function JobListScreen({ navigation }) {
               display="default"
               onChange={onChangeEndDate}
             /></View> : <TouchableOpacity onPress={() => { switchSelectingFilterEnd(true) }}>
-            <Text>{filterEndDate.getMonth() + 1}月{filterEndDate.getDate()}日</Text>
+            <Text style={styles.datePickerAndroid}>{filterEndDate.getMonth() + 1}月{filterEndDate.getDate()}日</Text>
           </TouchableOpacity>}
         {selectFilterEnd ?
           <DateTimePicker
@@ -395,7 +395,8 @@ const styles = StyleSheet.create({
     fontFamily: "SF-Pro-Rounded-Ultralight",
     fontSize: 20,
     alignSelf: "center",
-    marginTop: 20
+    marginTop: 20,
+    color:"black"
   },
   jobRowContainer: {
     flex: 1,
@@ -412,11 +413,13 @@ const styles = StyleSheet.create({
   },
   jobCompanyTitle: {
     fontFamily: "SF-Pro-Text-Bold",
-    fontSize: 20
+    fontSize: 20,
+    color:"black"
   },
   jobTime: {
     fontFamily: "SF-Pro-Text-Regular",
-    marginTop: 5
+    marginTop: 5,
+    color:"black"
   },
   regionBox: {
     backgroundColor: "#a1f7a1",
@@ -442,5 +445,11 @@ const styles = StyleSheet.create({
     fontFamily: "SF-Pro-Text-Regular",
     color: "white",
     alignSelf: "center"
+  },
+  datePickerAndroid:{
+    fontFamily:"SF-Pro-Ultralight-Rounded",
+    alignSelf:"center",
+    fontSize:20,
+    color:"#007bff"
   }
 });

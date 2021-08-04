@@ -145,7 +145,9 @@ export default function StickerCreatingScreen({navigation}) {
         <Text style={styles.colon}>:</Text>
         <TextInput
           ref={(input) => {
+            if(input){
             this.startingMinutesTextInput = input;
+            }
           }}
           placeholder=""
           style={styles.inputBar}
@@ -164,7 +166,9 @@ export default function StickerCreatingScreen({navigation}) {
         <Text style={styles.instructText}>結束時間:</Text>
         <TextInput
           ref={(input) => {
+            if(input){
             this.endingHoursTextInput = input;
+            }
           }}
           placeholder="24小時制"
           placeholderTextColor="#aeaeb2"
@@ -182,7 +186,9 @@ export default function StickerCreatingScreen({navigation}) {
         <Text style={styles.colon}>:</Text>
         <TextInput
           ref={(input) => {
+            if(input){
             this.endingMinutesTextInput = input;
+            }
           }}
           placeholder=""
           style={styles.inputBar}
@@ -211,11 +217,12 @@ const styles = StyleSheet.create({
   stickerPreviewCircle: {
     height: height * 0.16,
     backgroundColor: "#19FFE6",
-    marginTop: height * 0.05,
-    width: width * 0.35,
+    width: width * 0.43,
+    height:height*0.23,
     borderRadius: 30,
     alignSelf: "center",
     marginBottom: height*0.2,
+    marginTop:10
   },
   stickerHead: {
     width: "100%",
@@ -231,12 +238,14 @@ const styles = StyleSheet.create({
   },
   stickerContentContainer:{
     width:"100%",
+    height:"100%",
     padding:5
   },
   stickerTime:{
     fontFamily:"SF-Pro-Rounded-Black",
-    fontSize:25,
-    textAlign:"center"
+    fontSize:22,
+    textAlign:"center",
+    flexShrink:1
   },
   instructColumnContainer: {
     backgroundColor: "black",
@@ -247,6 +256,7 @@ const styles = StyleSheet.create({
     fontFamily: "SF-Pro-Text-Regular",
     fontSize: 18,
     paddingTop: 10,
+    color:"black"
   },
   inputBar: {
     fontFamily: "SF-Pro-Text-Regular",
@@ -255,6 +265,7 @@ const styles = StyleSheet.create({
     margin: 5,
     padding: 10,
     textAlign: "center",
+    minHeight:50
   },
   inputContainer: {
     flexDirection: "row",
@@ -263,6 +274,6 @@ const styles = StyleSheet.create({
   },
   previewContainer:{
     backgroundColor:"#212124",
-    height:"30%"
+    height:"35%"
   }
 });

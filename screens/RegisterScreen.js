@@ -73,9 +73,9 @@ export default function RegisterScreen({ navigation }) {
       Alert.alert("電話號碼需為8位數字");
     } else if (email.replace(/\s/g, "").length < 2) {
       Alert.alert("電郵地址不能為空白");
-    } else if(gender == ""){
+    } else if (gender == "") {
       Alert.alert("請選擇性別");
-    }else if (
+    } else if (
       password.replace(/\s/g, "").length < 5 ||
       password != confirmPassword
     ) {
@@ -118,18 +118,18 @@ export default function RegisterScreen({ navigation }) {
   const createUserOnFirestore = async () => {
     const memberInfo = {
       fullname: fullname,
-      gender:gender,
+      gender: gender,
       rank: rank,
       preferLocation: preferLocation,
       phone: phone,
       email: email,
       builtDate: new Date(),
       activated: false,
-      currentlyAppliedJob:[],
-      completedJob:[],
-      vacination:"BioNTech",
+      currentlyAppliedJob: [],
+      completedJob: [],
+      vacination: "N/A",
       lastNCovid: new Date(),
-      covidResult: "Negative"
+      covidResult: "N/A",
     };
     await firestore()
       .collection("members")

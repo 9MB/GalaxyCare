@@ -78,9 +78,9 @@ export default function JobBalanceScreen({ navigation }) {
               resizeMode="cover"
               style={styles.staffImage}
             />
-            <Text style={styles.rankTitle}>{memberInfo.rank}</Text>
-            <Text style={styles.name}>{memberInfo.fullname}</Text>
-            <Text>星玥護理有限公司</Text>
+            <Text style={styles.rankTitle} adjustsFontSizeToFit={true}>{memberInfo.rank}</Text>
+            <Text style={styles.name} adjustsFontSizeToFit={true}>{memberInfo.fullname}</Text>
+            <Text adjustsFontSizeToFit={true}>星玥護理有限公司</Text>
           </View> : null}
       </View>
       <View style={styles.balanceSheet}>
@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: "100%",
+    paddingTop:10,
     backgroundColor: "#f2f2f7"
   },
   staffCard: {
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignSelf: "center",
     borderRadius: 10,
-    padding: 10,
+    padding: 15,
     flexDirection: "row"
   },
   balanceSheet: {
@@ -129,7 +130,9 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: "50%",
     height: "60%",
-    margin: 10
+    margin: 10,
+    padding:15,
+    paddingBottom:25
 
   },
   staffImage: {
@@ -138,7 +141,13 @@ const styles = StyleSheet.create({
   },
   rankTitle: {
     fontFamily: "SF-Pro-Text-Bold",
-    fontSize: 25
+    fontSize: 25,
+    color:"black"
+  },
+  name: {
+    fontFamily: "SF-Pro-Text-Regular",
+    fontSize: 12,
+    color:"black"
   },
   flatListContainer: {
     width: "100%",
@@ -204,6 +213,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     fontFamily: "SF-Pro-Text-Bold",
     fontSize: 25,
+    color:"black"
   },
   flatlist: {
     height: "75%"
