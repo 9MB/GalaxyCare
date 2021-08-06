@@ -10,7 +10,8 @@ import {
   Dimensions,
   TouchableOpacity,
   Alert,
-  Platform
+  Platform,
+  Keyboard
 } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import firestore from "@react-native-firebase/firestore";
@@ -237,6 +238,7 @@ export default function JobListScreen({ navigation }) {
         placeholder="選擇地區"
         placeholderTextColor="white"
         onFocus={() => {
+          Keyboard.dismiss();
           switchIsExpandingPicker(true);
         }}
       />

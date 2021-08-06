@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   FlatList,
   Alert,
+  Platform,
 } from "react-native";
 import {
   AntDesign,
@@ -67,11 +68,11 @@ export default function JobCalendarScreen({ route, navigation }) {
         onPress={
           isEditingSticker
             ? () => {
-                deleteSticker(item);
-              }
+              deleteSticker(item);
+            }
             : () => {
-                createEvent(item);
-              }
+              createEvent(item);
+            }
         }
       >
         <Text adjustsFontSizeToFit={true} style={styles.stickerText}>
@@ -124,12 +125,12 @@ export default function JobCalendarScreen({ route, navigation }) {
       compareEndDate.getTime() > startDate.getTime()
         ? compareEndDate
         : new Date(
-            queryYear,
-            queryMonth,
-            parseInt(queryDay) + 1,
-            sticker.eventEndingHour,
-            sticker.eventEndingMinute
-          );
+          queryYear,
+          queryMonth,
+          parseInt(queryDay) + 1,
+          sticker.eventEndingHour,
+          sticker.eventEndingMinute
+        );
     const details = {
       title: sticker.eventTitle,
       startDate: startDate,
@@ -217,13 +218,16 @@ export default function JobCalendarScreen({ route, navigation }) {
 
   async function loadEventsArray() {
     const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (Platform.OS == "ios") {
+      await Calendar.requestRemindersPermissionsAsync();
+    }
     if (status === "granted") {
-      const calendars = await Calendar.getCalendarsAsync(
-        Calendar.EntityTypes.EVENT
+      const calendars = await Calendar.getCalendarsAsync();
+      console.log("CalendarList", calendars)
+      const calendarsIDArray = calendars.map((calendar) =>
+        calendar.id
       );
-      const calendarsIDArray = calendars.map((calendar) => {
-        calendar.id;
-      });
+      console.log("CalendarsID", calendarsIDArray)
       const startDate = new Date(queryYear, queryMonth, 1);
       const endDate = new Date(queryYear, queryMonth + 1, 1);
       const eventsArray = await Calendar.getEventsAsync(
@@ -231,6 +235,7 @@ export default function JobCalendarScreen({ route, navigation }) {
         startDate,
         endDate
       );
+      console.log("EventsArray", eventsArray)
       setEventsArray(eventsArray);
     }
   }
@@ -239,7 +244,7 @@ export default function JobCalendarScreen({ route, navigation }) {
     Alert.alert("確定要刪除此事項?", "", [
       {
         text: "取消",
-        onPress: () => {},
+        onPress: () => { },
       },
       {
         text: "刪除",
@@ -251,9 +256,9 @@ export default function JobCalendarScreen({ route, navigation }) {
     ]);
   }
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     loadSuccessfulPair();
-  },[]);
+  }, []);
 
   React.useEffect(() => {
     loadEventsArray();
@@ -302,7 +307,7 @@ export default function JobCalendarScreen({ route, navigation }) {
       }
       if (pendingCancelJob != null) {
         const eventID = appliedJob.filter(
-          event => new Date(event.eventTime).getTime() == new Date(pendingCancelJob.startTime.seconds*1000).getTime()
+          event => new Date(event.eventTime).getTime() == new Date(pendingCancelJob.startTime.seconds * 1000).getTime()
         )[0].id;
         console.log("EventID", eventID)
         await Calendar.deleteEventAsync(eventID);
@@ -475,10 +480,10 @@ export default function JobCalendarScreen({ route, navigation }) {
                           {event.notes == "GalaxyCare Work Schedule" ? (
                             <View style={styles.sticker}></View>
                           ) : null}
-                          {successfulPair.filter((eventConfirmed)=>
-                             new Date(event.startDate).getTime() == new Date(eventConfirmed.startTime.seconds*1000).getTime()
-                          ).length>0?
-                        <Text>已確認</Text>:null}
+                          {successfulPair.filter((eventConfirmed) =>
+                            new Date(event.startDate).getTime() == new Date(eventConfirmed.startTime.seconds * 1000).getTime()
+                          ).length > 0 ?
+                            <Text>已確認</Text> : null}
                         </View>
                       );
                     })}
@@ -554,6 +559,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     width: "100%",
     flex: 0.8,
+    zIndex:999
   },
   stickerRow: {
     flexDirection: "row",
@@ -567,6 +573,7 @@ const styles = StyleSheet.create({
   },
   controlPanelContainer: {
     flexDirection: "row",
+    zIndex:999
   },
   controlButton: {
     margin: 10,
@@ -581,18 +588,18 @@ const styles = StyleSheet.create({
   monthText: {
     fontSize: 25,
     margin: 10,
-    color:"black"
+    color: "black",
   },
   weekDayText: {
     flex: 1,
     fontFamily: "SF-Pro-Rounded-Ultralight",
-    color:"black"
+    color: "black"
   },
   calendarEventTitle: {
     fontFamily: "SF-Pro-Rounded-Black",
     fontSize: 12,
     textAlign: "center",
-    color:"black"
+    color: "black"
   },
   calendarEventTitleLowPriority: {
     fontFamily: "SF-Pro-Rounded-Ultralight",
@@ -634,11 +641,11 @@ const styles = StyleSheet.create({
   },
   dayText: {
     fontFamily: "SF-Pro-Text-Regular",
-    color:"black"
+    color: "black"
   },
   queryDayText: {
     fontFamily: "SF-Pro-Text-Bold",
-    color:"black"
+    color: "black"
   },
   eventPotContainer: {
     flex: 1,

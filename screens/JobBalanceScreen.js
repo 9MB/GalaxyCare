@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f7"
   },
   staffCard: {
-    height: "30%",
+    height: "40%",
     width: "90%",
     backgroundColor: "white",
     alignSelf: "center",
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   balanceSheet: {
     width: "90%",
-    height: "60%",
+    height: "55%",
     backgroundColor: "white",
     alignSelf: "center",
     marginTop: 20,
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
     padding: 20
   },
   imageContainer: {
-    width: "50%",
-    height: "60%",
+    width: "100%",
+    height: "70%",
     margin: 10,
     padding:15,
     paddingBottom:25
@@ -138,6 +138,7 @@ const styles = StyleSheet.create({
   staffImage: {
     width: "50%",
     height: "100%",
+    alignSelf:"flex-end"
   },
   rankTitle: {
     fontFamily: "SF-Pro-Text-Bold",
