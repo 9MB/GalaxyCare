@@ -23,7 +23,7 @@ import * as Calendar from "expo-calendar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import defaultStickerList from "../components/defaultStickerList";
 
-const calendarImage = require("../assets/images/registerImage.png");
+const calendarImage = require("../assets_galaxycare/images/registerImage.png");
 
 var stickerArray;
 var AppsCalendarID;

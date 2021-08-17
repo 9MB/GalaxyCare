@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions, Image } from 'react-native';
 
-const checkMark = require("../assets/images/CheckMark.png");
+const checkMark = require("../assets_galaxycare/images/CheckMark.png");
 
 export default function InfoReceivedScreen({navigation}) {
   React.useEffect(()=>{

@@ -12,7 +12,7 @@ import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const backgroundImage = require("../assets/images/LoginBackground_GalaxyCare.jpg");
+const backgroundImage = require("../assets_galaxycare/images/LoginBackground_GalaxyCare.jpg");
 
 export default function LoginScreen({ navigation }) {
   const [email, onChangeEmail] = React.useState("");

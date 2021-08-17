@@ -79,16 +79,16 @@ export default function App() {
     try {
       // Pre-load fonts, make any API calls you need to do here
       await Font.loadAsync({
-        "SF-Pro-Rounded-Black": require("./assets/fonts/SF-Pro-Rounded-Black.otf"),
-        "SF-Pro-Rounded-Ultralight": require("./assets/fonts/SF-Pro-Rounded-Ultralight.otf"),
-        "SF-Pro-Text-Bold": require("./assets/fonts/SF-Pro-Text-Bold.otf"),
-        "SF-Pro-Text-Regular": require("./assets/fonts/SF-Pro-Text-Regular.otf"),
+        "SF-Pro-Rounded-Black": require("./assets_galaxycare/fonts/SF-Pro-Rounded-Black.otf"),
+        "SF-Pro-Rounded-Ultralight": require("./assets_galaxycare/fonts/SF-Pro-Rounded-Ultralight.otf"),
+        "SF-Pro-Text-Bold": require("./assets_galaxycare/fonts/SF-Pro-Text-Bold.otf"),
+        "SF-Pro-Text-Regular": require("./assets_galaxycare/fonts/SF-Pro-Text-Regular.otf"),
       });
       await Asset.loadAsync([
-        require("./assets/images/LoginBackground_GalaxyCare.jpg"),
-        require("./assets/images/registerImage.png"),
-        require("./assets/images/CheckMark.png"),
-        require("./assets/images/applicationBackground.jpg")
+        require("./assets_galaxycare/images/LoginBackground_GalaxyCare.jpg"),
+        require("./assets_galaxycare/images/registerImage.png"),
+        require("./assets_galaxycare/images/CheckMark.png"),
+        require("./assets_galaxycare/images/applicationBackground.jpg")
       ]);
       // Artificially delay for two seconds to simulate a slow loading
       // experience. Please remove this if you copy and paste the code!

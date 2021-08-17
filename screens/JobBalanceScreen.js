@@ -5,7 +5,7 @@ import firestore from "@react-native-firebase/firestore";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 
-const calendarImage = require("../assets/images/registerImage.png");
+const calendarImage = require("../assets_galaxycare/images/registerImage.png");
 
 export default function JobBalanceScreen({ navigation }) {
   var sum = 0;

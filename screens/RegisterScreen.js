@@ -16,7 +16,7 @@ import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 import { Picker } from "@react-native-picker/picker";
 
-const registerImage = require("../assets/images/registerImage.png");
+const registerImage = require("../assets_galaxycare/images/registerImage.png");
 const genderOptions = [
   { label: "男", value: "male" },
   { label: "女", value: "female" },

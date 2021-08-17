@@ -29,7 +29,13 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 		<key>NSExceptionDomains</key>
-		<dict/>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
 	<key>NSCalendarsUsageDescription</key>
 	<string>GalaxyCare requires calendar usage for users to build their own working schedule</string>

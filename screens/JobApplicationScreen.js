@@ -14,7 +14,7 @@ import firestore from "@react-native-firebase/firestore";
 import auth from "@react-native-firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const backgroundImage = require("../assets/images/applicationBackground.jpg");
+const backgroundImage = require("../assets_galaxycare/images/applicationBackground.jpg");
 
 export default function JobApplicationScreen({ route, navigation }) {
   const { jobInfo } = route.params;
