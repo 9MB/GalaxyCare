@@ -97,16 +97,20 @@ export default function JobCalendarScreen({ route, navigation }) {
     AppsCalendarID = jsonAppsCalendarID
       ? JSON.parse(jsonAppsCalendarID)
       : undefined;
+    console.log("AppsCalendarID", AppsCalendarID);
     if (AppsCalendarID == undefined) {
       AppsCalendarID = await createCalendar();
       const jsonValue = JSON.stringify(AppsCalendarID);
       await AsyncStorage.setItem("AppsCalendarID", jsonValue);
     }
   }
+
   async function createEvent(sticker) {
+    console.log("Creating Event...");
     const CalendarID = AppsCalendarID
       ? AppsCalendarID
       : await loadAppsCalendarID();
+    console.log("CalendarID", CalendarID);
     const startDate = new Date(
       queryYear,
       queryMonth,
@@ -154,20 +158,21 @@ export default function JobCalendarScreen({ route, navigation }) {
   }
 
   async function getDefaultCalendarSource() {
-    const calendars = await Calendar.getCalendarsAsync(
-      Calendar.EntityTypes.EVENT
-    );
+    const calendars = await Calendar.getCalendarsAsync();
+    console.log("Calendars", calendars);
     const defaultCalendars = calendars.filter(
-      (each) => each.source.name === "Default"
+      (each) => each.source.name === "Subscribed Calendars"
     );
     return defaultCalendars[0].source;
   }
 
   async function createCalendar() {
+    console.log("Creating Calendar...");
     const defaultCalendarSource =
-      Platform.OS === "ios"
+      Platform.OS == "ios"
         ? await getDefaultCalendarSource()
         : { isLocalAccount: true, name: "GalaxyCare Calendar" };
+    console.log("Default Calendar Source", defaultCalendarSource);
     const newCalendarID = await Calendar.createCalendarAsync({
       title: "GalaxyCare Calendar",
       color: "blue",
@@ -177,7 +182,10 @@ export default function JobCalendarScreen({ route, navigation }) {
       name: "internalCalendarName",
       ownerAccount: "personal",
       accessLevel: Calendar.CalendarAccessLevel.OWNER,
+    }).catch((e) => {
+      console.log("Error creating calendar", e);
     });
+    console.log("New Calendar ID", newCalendarID);
     return newCalendarID;
   }
 
@@ -225,9 +233,7 @@ export default function JobCalendarScreen({ route, navigation }) {
     }
     if (status === "granted") {
       const calendars = await Calendar.getCalendarsAsync();
-      console.log("CalendarList", calendars);
       const calendarsIDArray = calendars.map((calendar) => calendar.id);
-      console.log("CalendarsID", calendarsIDArray);
       const startDate = new Date(queryYear, queryMonth, 1);
       const endDate = new Date(queryYear, queryMonth + 1, 1);
       const eventsArray = await Calendar.getEventsAsync(
@@ -257,6 +263,7 @@ export default function JobCalendarScreen({ route, navigation }) {
   }
 
   React.useEffect(() => {
+    loadAppsCalendarID();
     loadSuccessfulPair();
   }, []);
 
@@ -264,7 +271,6 @@ export default function JobCalendarScreen({ route, navigation }) {
     loadEventsArray();
     calendarDateArray();
     loadStickerArray();
-    loadAppsCalendarID();
   }, [queryMonth]);
 
   React.useEffect(() => {
