@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0587E23026CC4CB400D012FA /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 0587E20426CC4CB400D012FA /* main.jsbundle */; };
-		0587E23426CC4E2E00D012FA /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 0587E23326CC4E2E00D012FA /* assets */; };
 		05D5D38526482F940047B8DA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 05D5D38426482F940047B8DA /* GoogleService-Info.plist */; };
+		05E96F7C26CFEA80001562D9 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 05E96F7A26CFEA80001562D9 /* assets */; };
+		05E96F7D26CFEA80001562D9 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 05E96F7B26CFEA80001562D9 /* main.jsbundle */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -20,9 +20,9 @@
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		0587E20426CC4CB400D012FA /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = main.jsbundle; path = ../release_ios/main.jsbundle; sourceTree = "<group>"; };
-		0587E23326CC4E2E00D012FA /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../release_ios/assets; sourceTree = "<group>"; };
 		05D5D38426482F940047B8DA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		05E96F7A26CFEA80001562D9 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../release_ios/assets; sourceTree = "<group>"; };
+		05E96F7B26CFEA80001562D9 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = main.jsbundle; path = ../release_ios/main.jsbundle; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* GalaxyCare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GalaxyCare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = GalaxyCare/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = GalaxyCare/AppDelegate.m; sourceTree = "<group>"; };
@@ -87,8 +87,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				0587E23326CC4E2E00D012FA /* assets */,
-				0587E20426CC4CB400D012FA /* main.jsbundle */,
+				05E96F7A26CFEA80001562D9 /* assets */,
+				05E96F7B26CFEA80001562D9 /* main.jsbundle */,
 				05D5D38426482F940047B8DA /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* GalaxyCare */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -190,12 +190,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0587E23426CC4E2E00D012FA /* assets in Resources */,
+				05E96F7C26CFEA80001562D9 /* assets in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				05D5D38526482F940047B8DA /* GoogleService-Info.plist in Resources */,
+				05E96F7D26CFEA80001562D9 /* main.jsbundle in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				0587E23026CC4CB400D012FA /* main.jsbundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

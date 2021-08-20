@@ -38,9 +38,9 @@
 		</dict>
 	</dict>
 	<key>NSCalendarsUsageDescription</key>
-	<string>GalaxyCare requires calendar usage for users to build their own working schedule</string>
+	<string>GalaxyCare將使用手機日歷作工作提示</string>
 	<key>NSRemindersUsageDescription</key>
-	<string>GalaxyCare requires reminders usage for reminding users for working schedule</string>
+	<string>GalaxyCare將使用備忘錄作工作提示</string>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
