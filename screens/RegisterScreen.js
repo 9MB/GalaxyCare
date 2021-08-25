@@ -140,7 +140,7 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <ScrollView>
+    <ScrollView style={{flex:1, height:"200%"}}>
       <KeyboardAvoidingView behavior="padding">
         <View style={styles.container}>
           <Text style={styles.greet}>歡迎您加入Galaxy Care！</Text>
@@ -234,13 +234,6 @@ export default function RegisterScreen({ navigation }) {
             <Picker.Item label="港島" value="Hong Kong Island" />
           </Picker>
         </View>
-        <View style={styles.imageContainer}>
-          <Image
-            source={registerImage}
-            resizeMode="contain"
-            style={styles.image}
-          />
-        </View>
       </KeyboardAvoidingView>
     </ScrollView>
   );
@@ -249,7 +242,7 @@ export default function RegisterScreen({ navigation }) {
 const { height } = Dimensions.get("window");
 const styles = StyleSheet.create({
   container: {
-    height: "80%",
+    height: "100%",
     color: "#ffffff",
     padding: 10,
   },
@@ -278,17 +271,5 @@ const styles = StyleSheet.create({
   },
   pickerWheel: {
     width: "95%",
-  },
-  imageContainer: {
-    height: "20%",
-    width: "40%",
-    alignItems: "flex-end",
-    top: height * 0.8,
-    position: "absolute",
-  },
-  image: {
-    position: "absolute",
-    height: "100%",
-    width: "100%",
   },
 });

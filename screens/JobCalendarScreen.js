@@ -646,11 +646,13 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: "center",
     backgroundColor: "#19FF64",
+    overflow:"hidden"
   },
   dayBox: {
     flex: 1,
     padding: 5,
     alignItems: "center",
+    overflow:"hidden"
   },
   dayText: {
     fontFamily: "SF-Pro-Text-Regular",
