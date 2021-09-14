@@ -45,6 +45,7 @@ export default function RegisterScreen({ navigation }) {
   const [jobType, onChangeJobType] = React.useState("");
   const [rank, onChangeRank] = React.useState("");
   const [preferLocation, setPreferLocation] = React.useState("");
+  const [preferLocation2nd, setPreferLocation2nd] = React.useState("");
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -121,6 +122,7 @@ export default function RegisterScreen({ navigation }) {
       gender: gender,
       rank: rank,
       preferLocation: preferLocation,
+      preferLocation2nd: preferLocation2nd,
       phone: phone,
       email: email,
       builtDate: new Date(),
@@ -220,12 +222,25 @@ export default function RegisterScreen({ navigation }) {
             />
           )}
 
-          <Text style={styles.instruction}>預期工作地點</Text>
+          <Text style={styles.instruction}>預期工作地點(第一)</Text>
           <Picker
             selectedValue={preferLocation}
             style={styles.pickerWheel}
             onValueChange={(itemValue, itemIndex) =>
               setPreferLocation(itemValue)
+            }
+          >
+            <Picker.Item label="滑動選擇" value="" />
+            <Picker.Item label="九龍" value="Kowloon" />
+            <Picker.Item label="新界" value="New Territories" />
+            <Picker.Item label="港島" value="Hong Kong Island" />
+          </Picker>
+          <Text style={styles.instruction}>預期工作地點(第二)</Text>
+          <Picker
+            selectedValue={preferLocation2nd}
+            style={styles.pickerWheel}
+            onValueChange={(itemValue, itemIndex) =>
+              setPreferLocation2nd(itemValue)
             }
           >
             <Picker.Item label="滑動選擇" value="" />

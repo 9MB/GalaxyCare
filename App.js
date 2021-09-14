@@ -5,9 +5,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Asset } from "expo-asset";
 import * as Font from "expo-font";
-import AppLoading from 'expo-app-loading';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import AppLoading from "expo-app-loading";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
@@ -18,8 +17,8 @@ import JobBalanceScreen from "./screens/JobBalanceScreen";
 import InfoReceivedScreen from "./screens/InfoReceivedScreen";
 import StickerCreatingScreen from "./screens/StickerCreatingScreen";
 
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 
 const LoginStack = createStackNavigator();
 const CalendarStack = createStackNavigator();
@@ -28,19 +27,42 @@ const AppTab = createBottomTabNavigator();
 function Calendar() {
   return (
     <CalendarStack.Navigator initialRouteName="工作日歷">
-      <CalendarStack.Screen name="工作日歷" component={JobCalendarScreen} options={{ headerShown: false }} />
-      <CalendarStack.Screen name="新增常用事項" component={StickerCreatingScreen} options={{ headerStyle: { backgroundColor: "#ffcc00" }, headerTintColor: "white" }} />
+      <CalendarStack.Screen
+        name="工作日歷"
+        component={JobCalendarScreen}
+        options={{ headerShown: false }}
+      />
+      <CalendarStack.Screen
+        name="新增常用事項"
+        component={StickerCreatingScreen}
+        options={{
+          headerStyle: { backgroundColor: "#ffcc00" },
+          headerTintColor: "white",
+        }}
+      />
     </CalendarStack.Navigator>
-  )
+  );
 }
 
 function JobList() {
   return (
     <CalendarStack.Navigator initialRouteName="報更">
-      <CalendarStack.Screen name="報更" component={JobListScreen} options={{ headerShown: false }} />
-      <CalendarStack.Screen name="應徵" component={JobApplicationScreen} options={({ route }) => ({ headerStyle: { backgroundColor: "#ffcc00" }, headerTintColor: "white", title: "應徵" + route.params.companyName })} />
+      <CalendarStack.Screen
+        name="報更"
+        component={JobListScreen}
+        options={{ headerShown: false }}
+      />
+      <CalendarStack.Screen
+        name="應徵"
+        component={JobApplicationScreen}
+        options={({ route }) => ({
+          headerStyle: { backgroundColor: "#ffcc00" },
+          headerTintColor: "white",
+          title: "應徵" + route.params.companyName,
+        })}
+      />
     </CalendarStack.Navigator>
-  )
+  );
 }
 
 export default function App() {
@@ -50,29 +72,34 @@ export default function App() {
   const [user, setUser] = React.useState();
 
   // Handle user state changes
-  
+
   function onAuthStateChanged(onAuthChange) {
+    if (onAuthChange == null) {
+      setUser(undefined);
+      setInitializing(true);
+    } else {
       setUser(onAuthChange);
-      getEmployeeInfo(onAuthChange);
+    }
+    getEmployeeInfo(onAuthChange);
     if (initializing) setInitializing(false);
   }
-  
 
   async function getEmployeeInfo() {
-    await firestore().collection("members")
+    await firestore()
+      .collection("members")
       .where("email", "==", user.email)
       .get()
-      .then(querySnapshot => {
+      .then((querySnapshot) => {
         querySnapshot.forEach(async (doc) => {
           const tmpMemberInfo = doc.data();
-          console.log("Doc.data", doc.data())
+          console.log("Doc.data", doc.data());
           const jsonValue = JSON.stringify(tmpMemberInfo);
           await AsyncStorage.setItem("MemberInfoLocal", jsonValue);
-        })
+        });
       })
-      .catch(e => {
+      .catch((e) => {
         console.log("Error in fetching memberInfo", e);
-      })
+      });
   }
 
   async function prepare() {
@@ -88,12 +115,12 @@ export default function App() {
         require("./assets_galaxycare/images/LoginBackground_GalaxyCare.jpg"),
         require("./assets_galaxycare/images/registerImage.png"),
         require("./assets_galaxycare/images/CheckMark.png"),
-        require("./assets_galaxycare/images/applicationBackground.jpg")
+        require("./assets_galaxycare/images/applicationBackground.jpg"),
       ]);
       // Artificially delay for two seconds to simulate a slow loading
       // experience. Please remove this if you copy and paste the code!
     } catch (e) {
-      console.log("Error", e)
+      console.log("Error", e);
     } finally {
       // Tell the application to render
       setAppIsReady(true);
@@ -107,7 +134,6 @@ export default function App() {
     })();
   }, []);
 
-
   if (!appIsReady) {
     return (
       <AppLoading
@@ -115,7 +141,7 @@ export default function App() {
         onFinish={() => setAppIsReady(true)}
         onError={console.warn}
       />
-    )
+    );
   }
 
   return (
@@ -149,7 +175,6 @@ export default function App() {
           />
         </LoginStack.Navigator>
       )}
-
     </NavigationContainer>
   );
 }

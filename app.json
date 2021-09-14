@@ -4,7 +4,11 @@
   "expo": {
     "name": "GalaxyCare",
     "slug": "GalaxyCare",
-    "version": "1.1.0",
+    "version": "1.2.0",
+    "splash": {
+      "image": "./assets_galaxycare/images/SplashScreen.png",
+      "resizeMode": "cover"
+    },
     "assetBundlePatterns": [
       "**/*"
     ]

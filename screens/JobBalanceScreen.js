@@ -97,6 +97,7 @@ export default function JobBalanceScreen({ navigation }) {
             />
             <Text style={styles.sum}>總計: {calculated}</Text>
           </View> : null}
+          <Button style={{height:"5%"}} title="登出" onPress={()=>{auth().signOut()}}/>
       </View>
     </SafeAreaView>
   );
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
   },
   balanceSheet: {
     width: "90%",
-    height: "55%",
+    height: "50%",
     backgroundColor: "white",
     alignSelf: "center",
     marginTop: 20,

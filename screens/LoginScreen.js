@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const backgroundImage = require("../assets_galaxycare/images/LoginBackground_GalaxyCare.jpg");
 
@@ -53,6 +53,7 @@ export default function LoginScreen({ navigation }) {
           onChangeText={onChangeEmail}
           value={email}
           placeholder="您的電郵地址"
+          placeholderTextColor="white"
           autoCapitalize="none"
           autoCorrect={false}
         />
@@ -61,6 +62,7 @@ export default function LoginScreen({ navigation }) {
           onChangeText={onChangePassword}
           value={password}
           placeholder="密碼"
+          placeholderTextColor="white"
           autoCapitalize="none"
           autoCorrect={false}
           secureTextEntry={true}
