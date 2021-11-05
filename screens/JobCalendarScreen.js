@@ -143,8 +143,12 @@ export default function JobCalendarScreen({ route, navigation }) {
       notes: "GalaxyCare Work Schedule",
       alarms: [{ relativeOffset: -90 }],
     };
-    await Calendar.createEventAsync(CalendarID, details).catch((e) => {
+    await Calendar.createEventAsync(CalendarID, details).catch(async (e) => {
       console.log("Error creating event", e);
+      const newCalendarID = await createCalendar();
+      const jsonNewCalendarID = JSON.stringify(newCalendarID);
+      await Calendar.createEventAsync(newCalendarID, details);
+      await AsyncStorage.setItem("AppsCalendarID", jsonNewCalendarID);
     });
     loadEventsArray();
   }
@@ -646,13 +650,13 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: "center",
     backgroundColor: "#19FF64",
-    overflow:"hidden"
+    overflow: "hidden",
   },
   dayBox: {
     flex: 1,
     padding: 5,
     alignItems: "center",
-    overflow:"hidden"
+    overflow: "hidden",
   },
   dayText: {
     fontFamily: "SF-Pro-Text-Regular",
